@@ -7,8 +7,13 @@ export class MQTTController {
     constructor(private createAppointmentCommand: createAppointmentCommand){}
 
     readonly client = mqtt.connect('mqtt://broker.hivemq.com');
-    readonly requestTopic = 'availability/request';
-    readonly responseTopic = 'availability/response';
+    readonly availabilityTopic = 'avaiability/#'
+    readonly appointmentTopic = 'appointment/#'
+    readonly appointmentResponse = 'appointment/response'
+    readonly appointmentRequest = 'appointment/request'
+    readonly availabilityRequest = 'availability/request'
+    topicArray : string[] = [this.availabilityTopic, this.appointmentTopic];
+    booking : string = '';
 
     //Publish method
     public publish(topic: string, responseMessage: string) {
@@ -17,17 +22,36 @@ export class MQTTController {
             console.log(topic ,responseMessage)
         })
     }
-
+    
+    
     //Subscribe method
     public subscribe(){
         this.client.on('connect', () => {
-            this.client.subscribe(this.requestTopic);
-            console.log('Client has subscribed successfully');
+            for(let i = 0; i < this.topicArray.length; i++) {
+                this.client.subscribe(this.topicArray[i]);
+                console.log('Client has subscribed successfully to ' + this.topicArray[i]);
+            }
         });
         this.client.on('message', async (topic, message) => {
-            const newMessage = JSON.parse(message.toString());
-            const appointmentCommand =  this.createAppointmentCommand.createAppointment(newMessage.userId, newMessage.dentistId, newMessage.issuance, newMessage.date)
-            this.publish(this.responseTopic, await appointmentCommand)
+            if(topic === 'availability/response') {
+                switch(message.toString()) {
+                    case 'yes':
+                        const newMessage = JSON.parse(message.toString());
+                        console.log(newMessage);
+                        const appointmentCommand =  this.createAppointmentCommand.createAppointment(newMessage.userId, newMessage.dentistId, newMessage.issuance, newMessage.date)
+                        this.publish(this.appointmentResponse, await appointmentCommand);
+                        break;
+                    case 'no':
+                        console.log(message.toString())
+                        this.publish(this.appointmentResponse, 'no');
+                }
+
+            }
+            if (topic === this.appointmentRequest) {
+                this.booking = message.toString();
+                this.publish(this.availabilityRequest, message.toString());
+            }
+           
         });
     }
 }
