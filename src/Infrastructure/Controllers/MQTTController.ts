@@ -1,3 +1,4 @@
+/* eslint-disable no-case-declarations */
 /* eslint-disable prettier/prettier */
 import mqtt from 'mqtt'
 import { createAppointmentCommand } from '../../Application/Commands/createAppointmentCommand';
@@ -12,8 +13,59 @@ export class MQTTController {
     readonly appointmentResponse = 'appointment/response'
     readonly appointmentRequest = 'appointment/request'
     readonly availabilityRequest = 'availability/request'
-    topicArray : string[] = [this.availabilityTopic, this.appointmentTopic];
-    booking : string = '';
+    readonly availabilityResponse = 'availability/response'
+
+    appointment = '';
+
+    //Subscribe to frontend request
+    public subscribeFrontEnd() {
+        this.client.on('connect', () => {
+            this.client.subscribe(this.appointmentRequest)
+        });
+        this.client.on('message', async (topic, message) => {
+            this.appointment = message.toString();
+            const newMessage = JSON.parse(message.toString());
+            const response: JSON = <JSON><unknown>{
+                'dentistId': newMessage.dentistId,
+                'date': newMessage.date
+            }
+            this.publish(this.availabilityRequest, JSON.stringify(response));
+        })
+    }
+
+    public susbcribeAvailabilityChecker() {
+
+        let newAppointment = null;
+        let savedAppointment = null;
+
+        this.client.on('connect', () => {
+            this.client.subscribe(this.availabilityResponse)
+        });
+        this.client.on('message', (topic, message) => {
+            switch(message.toString()) {
+
+                case 'yes':
+                    newAppointment = JSON.parse(this.appointment.toString());
+                    this.createAppointmentCommand.createAppointment(newAppointment.userId, newAppointment.dentistId, newAppointment.requestId, newAppointment.issuance, newAppointment.date);
+                    savedAppointment = <JSON><unknown> {
+                        'userId': newAppointment.userId,
+                        'requestId': newAppointment.requestId,
+                        'date': newAppointment.date
+                    }
+                    this.publish(this.appointmentResponse, JSON.stringify(savedAppointment));
+                    break;
+
+                case 'no':
+                    newAppointment = JSON.parse(this.appointment.toString());
+                    savedAppointment = <JSON><unknown> {
+                        'userId': newAppointment.userId,
+                        'requestId': newAppointment.requestId,
+                        'date': 'none'
+                    }
+                    this.publish(this.appointmentResponse, JSON.stringify(savedAppointment));
+            }
+        })
+    }
 
     //Publish method
     public publish(topic: string, responseMessage: string) {
@@ -21,38 +73,6 @@ export class MQTTController {
             this.client.publish(topic, responseMessage);
             console.log(topic ,responseMessage)
         })
-    }
-    
-    
-    //Subscribe method
-    public subscribe(){
-        this.client.on('connect', () => {
-            for(let i = 0; i < this.topicArray.length; i++) {
-                this.client.subscribe(this.topicArray[i]);
-                console.log('Client has subscribed successfully to ' + this.topicArray[i]);
-            }
-        });
-        this.client.on('message', async (topic, message) => {
-            if(topic === 'availability/response') {
-                switch(message.toString()) {
-                    case 'yes':
-                        const newMessage = JSON.parse(message.toString());
-                        console.log(newMessage);
-                        const appointmentCommand =  this.createAppointmentCommand.createAppointment(newMessage.userId, newMessage.dentistId, newMessage.issuance, newMessage.date)
-                        this.publish(this.appointmentResponse, await appointmentCommand);
-                        break;
-                    case 'no':
-                        console.log(message.toString())
-                        this.publish(this.appointmentResponse, 'no');
-                }
-
-            }
-            if (topic === this.appointmentRequest) {
-                this.booking = message.toString();
-                this.publish(this.availabilityRequest, message.toString());
-            }
-           
-        });
     }
 }
 
