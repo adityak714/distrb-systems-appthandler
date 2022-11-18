@@ -1,13 +1,22 @@
 /* eslint-disable no-case-declarations */
 /* eslint-disable prettier/prettier */
-import mqtt from 'mqtt'
+import mqtt, { IClientOptions } from 'mqtt'
 import { createAppointmentCommand } from '../../Application/Commands/createAppointmentCommand';
 
 export class MQTTController {
 
     constructor(private createAppointmentCommand: createAppointmentCommand){}
 
-    readonly client = mqtt.connect('mqtt://broker.hivemq.com');
+    readonly options: IClientOptions = {
+        port: 8883,
+        host: '80a9b426b200440c81e9c17c2ba85bc2.s2.eu.hivemq.cloud',
+        protocol: 'mqtts',
+        username: 'gusreinaos',
+        password: 'Mosquitto1204!'
+    }
+
+    readonly client = mqtt.connect(this.options);
+
     readonly availabilityTopic = 'avaiability/#'
     readonly appointmentTopic = 'appointment/#'
     readonly appointmentResponse = 'appointment/response'
@@ -21,14 +30,17 @@ export class MQTTController {
     public subscribeFrontEnd() {
         this.client.on('connect', () => {
             this.client.subscribe(this.appointmentRequest)
+            console.log('Client has subscribed successfully to the frontend')
         });
         this.client.on('message', async (topic, message) => {
             this.appointment = message.toString();
             const newMessage = JSON.parse(message.toString());
+            console.log(newMessage)
             const response: JSON = <JSON><unknown>{
                 'dentistId': newMessage.dentistId,
                 'date': newMessage.date
             }
+            console.log('Hola')
             this.publish(this.availabilityRequest, JSON.stringify(response));
         })
     }
