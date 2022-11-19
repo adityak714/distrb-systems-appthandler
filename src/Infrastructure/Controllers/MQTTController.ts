@@ -2,6 +2,7 @@
 /* eslint-disable prettier/prettier */
 import mqtt, { IClientOptions } from 'mqtt'
 import { createAppointmentCommand } from '../../Application/Commands/createAppointmentCommand';
+import { Appointment } from '../../Domain/Entities/Appointment';
 
 export class MQTTController {
 
@@ -34,15 +35,16 @@ export class MQTTController {
         });
         this.client.on('message', async (topic, message) => {
             this.appointment = message.toString();
-            const newMessage = JSON.parse(message.toString());
+            const newMessage = JSON.parse(this.appointment);
             console.log(newMessage)
+            console.log(newMessage.dentistId);
             const response: JSON = <JSON><unknown>{
-                'dentistId': newMessage.dentistId,
+                'dentistId': (newMessage.dentistId),
                 'date': newMessage.date
             }
-            console.log('Hola')
+            console.log(response)
             this.publish(this.availabilityRequest, JSON.stringify(response));
-        })
+        });
     }
 
     public susbcribeAvailabilityChecker() {

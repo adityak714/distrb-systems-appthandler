@@ -43,13 +43,14 @@ class MQTTController {
         });
         this.client.on('message', (topic, message) => __awaiter(this, void 0, void 0, function* () {
             this.appointment = message.toString();
-            const newMessage = JSON.parse(message.toString());
+            const newMessage = JSON.parse(this.appointment);
             console.log(newMessage);
+            console.log(newMessage.dentistId);
             const response = {
-                'dentistId': newMessage.dentistId,
+                'dentistId': (newMessage.dentistId),
                 'date': newMessage.date
             };
-            console.log('Hola');
+            console.log(response);
             this.publish(this.availabilityRequest, JSON.stringify(response));
         }));
     }
