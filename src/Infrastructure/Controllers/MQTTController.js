@@ -26,6 +26,7 @@ class MQTTController {
             username: 'gusreinaos',
             password: 'Mosquitto1204!'
         };
+        //readonly client = mqtt.connect('mqtt://broker.hivemq.com');
         this.client = mqtt_1.default.connect(this.options);
         this.availabilityTopic = 'avaiability/#';
         this.appointmentTopic = 'appointment/#';
@@ -36,52 +37,48 @@ class MQTTController {
         this.appointment = '';
     }
     //Subscribe to frontend request
-    subscribeFrontEnd() {
+    subscribe() {
         this.client.on('connect', () => {
             this.client.subscribe(this.appointmentRequest);
+            this.client.subscribe(this.availabilityResponse);
             console.log('Client has subscribed successfully to the frontend');
         });
         this.client.on('message', (topic, message) => __awaiter(this, void 0, void 0, function* () {
-            this.appointment = message.toString();
-            const newMessage = JSON.parse(this.appointment);
-            console.log(newMessage);
-            console.log(newMessage.dentistId);
-            const response = {
-                'dentistId': (newMessage.dentistId),
-                'date': newMessage.date
-            };
-            console.log(response);
-            this.publish(this.availabilityRequest, JSON.stringify(response));
-        }));
-    }
-    susbcribeAvailabilityChecker() {
-        let newAppointment = null;
-        let savedAppointment = null;
-        this.client.on('connect', () => {
-            this.client.subscribe(this.availabilityResponse);
-        });
-        this.client.on('message', (topic, message) => {
-            switch (message.toString()) {
-                case 'yes':
-                    newAppointment = JSON.parse(this.appointment.toString());
-                    this.createAppointmentCommand.createAppointment(newAppointment.userId, newAppointment.dentistId, newAppointment.requestId, newAppointment.issuance, newAppointment.date);
-                    savedAppointment = {
-                        'userId': newAppointment.userId,
-                        'requestId': newAppointment.requestId,
-                        'date': newAppointment.date
-                    };
-                    this.publish(this.appointmentResponse, JSON.stringify(savedAppointment));
-                    break;
-                case 'no':
-                    newAppointment = JSON.parse(this.appointment.toString());
-                    savedAppointment = {
-                        'userId': newAppointment.userId,
-                        'requestId': newAppointment.requestId,
-                        'date': 'none'
-                    };
-                    this.publish(this.appointmentResponse, JSON.stringify(savedAppointment));
+            if (topic === this.appointmentRequest) {
+                this.appointment = message.toString();
+                const newMessage = JSON.parse(this.appointment);
+                const response = {
+                    'dentistId': newMessage.dentistId,
+                    'date': newMessage.date
+                };
+                console.log(response);
+                this.publish(this.availabilityRequest, JSON.stringify(response));
             }
-        });
+            else if (topic === this.availabilityResponse) {
+                let newAppointment = null;
+                let savedAppointment = null;
+                switch (message.toString()) {
+                    case 'yes':
+                        newAppointment = JSON.parse(this.appointment.toString());
+                        this.createAppointmentCommand.createAppointment(newAppointment.userId, newAppointment.dentistId, newAppointment.requestId, newAppointment.issuance, newAppointment.date);
+                        savedAppointment = {
+                            'userId': newAppointment.userId,
+                            'requestId': newAppointment.requestId,
+                            'date': newAppointment.date
+                        };
+                        this.publish(this.appointmentResponse, JSON.stringify(savedAppointment));
+                        break;
+                    case 'no':
+                        newAppointment = JSON.parse(this.appointment.toString());
+                        savedAppointment = {
+                            'userId': newAppointment.userId,
+                            'requestId': newAppointment.requestId,
+                            'date': 'none'
+                        };
+                        this.publish(this.appointmentResponse, JSON.stringify(savedAppointment));
+                }
+            }
+        }));
     }
     //Publish method
     publish(topic, responseMessage) {

@@ -6,7 +6,9 @@ import mongoose from 'mongoose';
 mongoose.connect(
   'mongodb+srv://gusreinaos:4MNbebz6E04hq5IV@cluster0.x1srwma.mongodb.net/test'
 );
+
+//Execute seeder
+
 const repository = new appointmentRepository();
 const command = new createAppointmentCommand(repository);
-new MQTTController(command).subscribeFrontEnd();
-new MQTTController(command).susbcribeAvailabilityChecker();
+new MQTTController(command).subscribe();
