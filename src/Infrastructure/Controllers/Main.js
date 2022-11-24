@@ -11,4 +11,4 @@ mongoose_1.default.connect('mongodb+srv://gusreinaos:4MNbebz6E04hq5IV@cluster0.x
 //Execute seeder
 const repository = new appointmentRepository_1.appointmentRepository();
 const command = new createAppointmentCommand_1.createAppointmentCommand(repository);
-new MQTTController_1.MQTTController(command).subscribe();
+new MQTTController_1.MQTTController(command).connect();
