@@ -1,7 +1,6 @@
 /* eslint-disable no-case-declarations */
 /* eslint-disable prettier/prettier */
 import mqtt, { IClientOptions } from 'mqtt'
-import { WatchDirectoryFlags } from 'typescript';
 import { createAppointmentCommand } from '../../Application/Commands/createAppointmentCommand';
 
 
@@ -30,8 +29,8 @@ export class MQTTController {
 
     appointment = '';
     public connect() {
-        this.client.on("connect", () => {
-            console.log("Client is connected to the internet");
+        this.client.on('connect', () => {
+            console.log('Client is connected to the internet');
             this.client.subscribe(this.appointmentRequest, {qos: 1})
             this.client.subscribe(this.availabilityResponse, {qos: 1})
             console.log('Client has subscribed successfully')
@@ -78,11 +77,8 @@ export class MQTTController {
                         }
                     }
                 })
-            
-           
+
+
         })
     }
 }
-
-
-
