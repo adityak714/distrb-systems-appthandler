@@ -16,6 +16,7 @@ exports.MQTTController = void 0;
 /* eslint-disable no-case-declarations */
 /* eslint-disable prettier/prettier */
 const mqtt_1 = __importDefault(require("mqtt"));
+const dateUtils_1 = require("../../Domain/Utils/dateUtils");
 class MQTTController {
     constructor(createAppointmentCommand) {
         this.createAppointmentCommand = createAppointmentCommand;
@@ -41,7 +42,7 @@ class MQTTController {
         this.client.on('connect', () => {
             this.client.subscribe(this.appointmentRequest);
             this.client.subscribe(this.availabilityResponse);
-            console.log('Client has subscribed successfully to the frontend');
+            console.log('Client has subscribed successfully');
         });
         this.client.on('message', (topic, message) => __awaiter(this, void 0, void 0, function* () {
             if (topic === this.appointmentRequest) {
@@ -64,7 +65,7 @@ class MQTTController {
                         savedAppointment = {
                             'userId': newAppointment.userId,
                             'requestId': newAppointment.requestId,
-                            'date': newAppointment.date
+                            'date': (0, dateUtils_1.convertToLocalTime)(newAppointment.date)
                         };
                         this.publish(this.appointmentResponse, JSON.stringify(savedAppointment));
                         break;

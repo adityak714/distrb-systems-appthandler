@@ -18,7 +18,9 @@ class createAppointmentCommand {
     }
     createAppointment(userId, dentistId, requestId, issuance, date) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log(date);
             const newAppointment = new Appointment_1.Appointment(Number(userId), Number(dentistId), Number(requestId), Number(issuance), new Date(date));
+            console.log(newAppointment.date);
             yield this.appointmentRepository.registerAppointment(newAppointment);
         });
     }

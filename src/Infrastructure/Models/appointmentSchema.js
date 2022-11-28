@@ -27,7 +27,7 @@ const mongoose_1 = __importStar(require("mongoose"));
 const appointmentSchema = new mongoose_1.Schema({
     userId: { type: Number, required: true, unique: false },
     dentistId: { type: Number, required: true, unique: false },
-    requestId: { type: Number, required: true, unique: true },
+    requestId: { type: Number, required: true, unique: false },
     issuance: { type: Number, required: true, unique: false },
     date: { type: Date, required: true, unique: false },
 });

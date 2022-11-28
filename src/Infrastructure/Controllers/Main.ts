@@ -8,6 +8,9 @@ mongoose.connect(
 );
 
 //Execute seeder
+//Check if database is filled with dentistries
+//IF NOT read from JSON and update it
+//IF YES then keep executing the main
 
 const repository = new appointmentRepository();
 const command = new createAppointmentCommand(repository);

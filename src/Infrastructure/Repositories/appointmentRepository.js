@@ -17,9 +17,9 @@ const appointmentSchema_1 = __importDefault(require("../Models/appointmentSchema
 class appointmentRepository {
     registerAppointment(newAppointment) {
         return __awaiter(this, void 0, void 0, function* () {
-            newAppointment.date.setMinutes(0);
+            newAppointment.date.setMinutes(0).toString();
             newAppointment.date.setSeconds(0);
-            yield appointmentSchema_1.default.create(newAppointment);
+            yield appointmentSchema_1.default.create(newAppointment).toString();
         });
     }
 }

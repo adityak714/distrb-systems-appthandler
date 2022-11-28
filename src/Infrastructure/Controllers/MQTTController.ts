@@ -2,6 +2,7 @@
 /* eslint-disable prettier/prettier */
 import mqtt, { IClientOptions } from 'mqtt'
 import { createAppointmentCommand } from '../../Application/Commands/createAppointmentCommand';
+import { convertToLocalTime } from '../../Domain/Utils/dateUtils';
 
 
 export class MQTTController {
@@ -60,7 +61,7 @@ export class MQTTController {
                         savedAppointment = <JSON><unknown> {
                             'userId': newAppointment.userId,
                             'requestId': newAppointment.requestId,
-                            'date': newAppointment.date
+                            'date': convertToLocalTime(newAppointment.date)
                         }
                         this.publish(this.appointmentResponse, JSON.stringify(savedAppointment));
                         break;
@@ -86,6 +87,3 @@ export class MQTTController {
         })
     }
 }
-
-
-
