@@ -2,7 +2,7 @@
 /* eslint-disable prettier/prettier */
 import mqtt, { IClientOptions } from 'mqtt'
 import { createAppointmentCommand } from '../../Application/Commands/createAppointmentCommand';
-import { convertToLocalTime } from '../../Domain/Utils/dateUtils';
+// import { convertToLocalTime } from '../../Domain/Utils/dateUtils';
 
 
 export class MQTTController {
@@ -29,61 +29,58 @@ export class MQTTController {
     readonly availabilityResponse = 'availability/response'
 
     appointment = '';
-
-    //Subscribe to frontend request
-    public subscribe() {
+    public connect() {
         this.client.on('connect', () => {
-            this.client.subscribe(this.appointmentRequest)
-            this.client.subscribe(this.availabilityResponse)
+            console.log('Client is connected to the internet');
+            this.client.subscribe(this.appointmentRequest, {qos: 1})
+            this.client.subscribe(this.availabilityResponse, {qos: 1})
             console.log('Client has subscribed successfully')
-        });
-        this.client.on('message', async (topic, message) => {
-
-            if (topic === this.appointmentRequest){
-                this.appointment = message.toString();
-                const newMessage = JSON.parse(this.appointment);
-                const response: JSON = <JSON><unknown>{
-                    'dentistId': newMessage.dentistId,
-                    'date': newMessage.date
-                }
-                console.log(response)
-                this.publish(this.availabilityRequest, JSON.stringify(response));
-            }
-            else if (topic === this.availabilityResponse) {
-                let newAppointment = null;
-                let savedAppointment = null;
-
-                switch(message.toString()) {
-
-                    case 'yes':
-                        newAppointment = JSON.parse(this.appointment.toString());
-                        this.createAppointmentCommand.createAppointment(newAppointment.userId, newAppointment.dentistId, newAppointment.requestId, newAppointment.issuance, newAppointment.date);
-                        savedAppointment = <JSON><unknown> {
-                            'userId': newAppointment.userId,
-                            'requestId': newAppointment.requestId,
-                            'date': convertToLocalTime(newAppointment.date)
+            this.client.on('message', (topic, message) => {
+                if (topic === this.appointmentRequest){
+                    this.appointment = message.toString();
+                    console.log(this.appointment)
+                    const newMessage = JSON.parse(this.appointment);
+                    const response: JSON = <JSON><unknown>{
+                        'dentistId': newMessage.dentistId,
+                        'date': newMessage.date
+                    }
+                    console.log(response)
+                    this.client.publish(this.availabilityRequest, JSON.stringify(response));
+                    }
+                 if (topic === this.availabilityResponse) {
+                    let newAppointment = null;
+                    let savedAppointment = null;
+                    const firstAnswer = JSON.parse(message.toString())
+                    console.log(firstAnswer)
+                    const answer = firstAnswer.response
+                    console.log(answer)
+                    switch(answer) {
+                        case 'yes':
+                            newAppointment = JSON.parse(this.appointment);
+                            this.createAppointmentCommand.createAppointment(newAppointment.userId, newAppointment.dentistId, newAppointment.requestId, newAppointment.issuance, newAppointment.date);
+                            savedAppointment = <JSON><unknown> {
+                                'userId': newAppointment.userId,
+                                'requestId': newAppointment.requestId,
+                                'date': newAppointment.date.toLocaleTimeString('sv-SE')
+                            }
+                            console.log(savedAppointment)
+                            this.client.publish(this.appointmentResponse, JSON.stringify(savedAppointment));
+                            break;
+                        case 'no':
+                            newAppointment = JSON.parse(this.appointment);
+                            console.log(newAppointment)
+                            savedAppointment = <JSON><unknown> {
+                                'userId': newAppointment.userId,
+                                'requestId': newAppointment.requestId,
+                                'date': 'none'
+                            }
+                            console.log(savedAppointment)
+                            this.client.publish(this.appointmentResponse, JSON.stringify(savedAppointment));
                         }
-                        this.publish(this.appointmentResponse, JSON.stringify(savedAppointment));
-                        break;
+                    }
+                })
 
-                    case 'no':
-                        newAppointment = JSON.parse(this.appointment.toString());
-                        savedAppointment = <JSON><unknown> {
-                            'userId': newAppointment.userId,
-                            'requestId': newAppointment.requestId,
-                            'date': 'none'
-                        }
-                        this.publish(this.appointmentResponse, JSON.stringify(savedAppointment));
-                }
-            }
-        });
-    }
 
-    //Publish method
-    public publish(topic: string, responseMessage: string) {
-        this.client.on('connect',  () => {
-            this.client.publish(topic, responseMessage);
-            console.log(topic ,responseMessage)
         })
     }
 }

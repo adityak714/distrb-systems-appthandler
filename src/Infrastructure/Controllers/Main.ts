@@ -14,4 +14,4 @@ mongoose.connect(
 
 const repository = new appointmentRepository();
 const command = new createAppointmentCommand(repository);
-new MQTTController(command).subscribe();
+new MQTTController(command).connect();
