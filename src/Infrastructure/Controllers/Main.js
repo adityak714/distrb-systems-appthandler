@@ -19,4 +19,4 @@ for (let i = 0; i < dentistries_json_1.default.dentists.length; i++) {
 console.log("done");
 const repository = new appointmentRepository_1.appointmentRepository();
 const command = new createAppointmentCommand_1.createAppointmentCommand(repository);
-new MQTTController_1.MQTTController(command).subscribe();
+new MQTTController_1.MQTTController(command).connect();
