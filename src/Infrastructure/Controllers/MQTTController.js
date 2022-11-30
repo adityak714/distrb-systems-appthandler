@@ -28,8 +28,8 @@ class MQTTController {
         this.appointment = '';
     }
     connect() {
-        this.client.on("connect", () => {
-            console.log("Client is connected to the internet");
+        this.client.on('connect', () => {
+            console.log('Client is connected to the internet');
             this.client.subscribe(this.appointmentRequest, { qos: 1 });
             this.client.subscribe(this.availabilityResponse, { qos: 1 });
             console.log('Client has subscribed successfully');
@@ -76,74 +76,6 @@ class MQTTController {
                     }
                 }
             });
-        });
-    }
-    publish(topic, responseMessage) {
-        this.client.on('connect', () => {
-            this.client.publish(topic, responseMessage, (err) => {
-                if (err) {
-                    console.log("Error in publishing the message" + err);
-                }
-                else {
-                    console.log("Topic: " + topic + " , message: " + responseMessage);
-                }
-            });
-        });
-    }
-    testPublish() {
-        let message = JSON.stringify({ "userId": 12345, "requestId": 13, "dentistId": 1, "issuance": 1602406766314, "date": "2020-12-14 14:00:00" });
-        let i = 0;
-        this.client.on('connect', () => {
-            while (i < 5) {
-                this.client.publish('availability/request', message, { qos: 1 });
-                console.log(i);
-                i++;
-            }
-            console.log('done');
-        });
-    }
-    //Subscribe to frontend request
-    subscribe() {
-        this.client.on('connect', () => {
-            this.client.subscribe(this.appointmentRequest);
-            this.client.subscribe(this.availabilityResponse);
-            console.log('Client has subscribed successfully');
-        });
-        this.client.on('message', async (topic, message) => {
-            if (topic === this.appointmentRequest) {
-                this.appointment = message.toString();
-                const newMessage = JSON.parse(this.appointment);
-                const response = {
-                    'dentistId': newMessage.dentistId,
-                    'date': newMessage.date
-                };
-                console.log(response);
-                this.publish(this.availabilityRequest, JSON.stringify(response));
-            }
-            else if (topic === this.availabilityResponse) {
-                let newAppointment = null;
-                let savedAppointment = null;
-                switch (message.toString()) {
-                    case 'yes':
-                        newAppointment = JSON.parse(this.appointment.toString());
-                        this.createAppointmentCommand.createAppointment(newAppointment.userId, newAppointment.dentistId, newAppointment.requestId, newAppointment.issuance, newAppointment.date);
-                        savedAppointment = {
-                            'userId': newAppointment.userId,
-                            'requestId': newAppointment.requestId,
-                            'date': newAppointment.date
-                        };
-                        this.publish(this.appointmentResponse, JSON.stringify(savedAppointment));
-                        break;
-                    case 'no':
-                        newAppointment = JSON.parse(this.appointment.toString());
-                        savedAppointment = {
-                            'userId': newAppointment.userId,
-                            'requestId': newAppointment.requestId,
-                            'date': 'none'
-                        };
-                        this.publish(this.appointmentResponse, JSON.stringify(savedAppointment));
-                }
-            }
         });
     }
 }
