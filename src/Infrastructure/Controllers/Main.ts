@@ -2,19 +2,17 @@ import {createAppointmentCommand} from '../../Application/Commands/createAppoint
 import {appointmentRepository} from '../Repositories/appointmentRepository';
 import {MQTTController} from './MQTTController';
 import mongoose from 'mongoose';
-import dentists from '../../Files/dentistries.json'
 import Dentists from '../Models/dentistrySchema'
 
 mongoose.connect(
   'mongodb+srv://gusreinaos:4MNbebz6E04hq5IV@cluster0.x1srwma.mongodb.net/test'
 );
-///const allDentists = Dentists.find({});
-//console.log(allDentists);
+Dentists.find({}).then(dentists => {
+  console.log(dentists)
+});
 //Execute seeder
 
-for(let i= 0; i< dentists.dentists.length; i++) {
-  Dentists.create(dentists.dentists[i])
-}
+
 console.log("done")
 
 const repository = new appointmentRepository();
