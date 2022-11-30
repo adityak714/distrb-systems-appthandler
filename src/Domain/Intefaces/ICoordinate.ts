@@ -1,4 +1,4 @@
 export interface ICoordinate {
-    latitude: Number,
-    longitude: Number
+  latitude: Number;
+  longitude: Number;
 }

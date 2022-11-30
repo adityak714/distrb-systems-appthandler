@@ -7,6 +7,7 @@ class createDentistriesCommand {
         this.dentistryRepository = dentistryRepository;
     }
     async createDentistries() {
+        console.log('Executing the command');
         await this.dentistryRepository.createDentistries();
     }
 }

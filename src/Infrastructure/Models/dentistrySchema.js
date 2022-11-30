@@ -33,14 +33,14 @@ const dentistrySchema = new mongoose_1.Schema({
     city: { type: String },
     coordinate: {
         latitude: { type: mongoose_1.default.Types.Decimal128 },
-        longitude: { type: mongoose_1.default.Types.Decimal128 }
+        longitude: { type: mongoose_1.default.Types.Decimal128 },
     },
     openinghours: {
         monday: { type: String },
         tuesday: { type: String },
         wednesday: { type: String },
         thursday: { type: String },
-        firday: { type: String }
-    }
+        firday: { type: String },
+    },
 });
-exports.default = mongoose_1.default.model('Dentists', dentistrySchema);
+exports.default = mongoose_1.default.model('Dentist', dentistrySchema);

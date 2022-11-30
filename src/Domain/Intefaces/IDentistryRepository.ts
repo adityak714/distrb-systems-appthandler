@@ -1,3 +1,3 @@
 export interface IDentistryRepository {
-    createDentistries(): Promise<void>;
+  createDentistries(): Promise<void>;
 }

@@ -1,11 +1,12 @@
-import { IDentistryRepository } from "../../Domain/Intefaces/IDentistryRepository";
+import {IDentistryRepository} from '../../Domain/Intefaces/IDentistryRepository';
 import dentists from '../Files/dentistries.json';
-import Dentists from '../Models/dentistrySchema'
+import DentistSchema from '../Models/dentistrySchema';
 
-export class DentistryRepository implements IDentistryRepository{
-    async createDentistries(): Promise<void> {
-        for(let i= 0; i< dentists.dentists.length; i++) {
-            Dentists.create(dentists.dentists[i])
-          }
+export class dentistryRepository implements IDentistryRepository {
+  async createDentistries(): Promise<void> {
+    console.log('Executing the repository');
+    for (let i = 0; i < dentists.dentists.length; i++) {
+      await DentistSchema.create(dentists.dentists[i]);
     }
+  }
 }
