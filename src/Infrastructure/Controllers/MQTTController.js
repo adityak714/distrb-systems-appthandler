@@ -7,7 +7,7 @@ exports.MQTTController = void 0;
 /* eslint-disable no-case-declarations */
 /* eslint-disable prettier/prettier */
 const mqtt_1 = __importDefault(require("mqtt"));
-// import { convertToLocalTime } from '../../Domain/Utils/dateUtils';
+const dateUtils_1 = require("../../Domain/Utils/dateUtils");
 class MQTTController {
     constructor(createAppointmentCommand) {
         this.createAppointmentCommand = createAppointmentCommand;
@@ -16,7 +16,7 @@ class MQTTController {
             host: '80a9b426b200440c81e9c17c2ba85bc2.s2.eu.hivemq.cloud',
             protocol: 'mqtts',
             username: 'gusreinaos',
-            password: 'Mosquitto1204! '
+            password: 'Mosquitto1204!'
         };
         //readonly client = mqtt.connect('mqtt://broker.hivemq.com');
         this.client = mqtt_1.default.connect(this.options);
@@ -57,10 +57,11 @@ class MQTTController {
                         case 'yes':
                             newAppointment = JSON.parse(this.appointment);
                             this.createAppointmentCommand.createAppointment(newAppointment.userId, newAppointment.dentistId, newAppointment.requestId, newAppointment.issuance, newAppointment.date);
+                            const date = (0, dateUtils_1.convertToLocalTime)(newAppointment.date, 'sv-SE');
                             savedAppointment = {
                                 'userId': newAppointment.userId,
                                 'requestId': newAppointment.requestId,
-                                'date': newAppointment.date.toLocaleTimeString('sv-SE')
+                                'date': date
                             };
                             console.log(savedAppointment);
                             this.client.publish(this.appointmentResponse, JSON.stringify(savedAppointment));

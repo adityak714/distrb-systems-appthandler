@@ -2,7 +2,7 @@
 /* eslint-disable prettier/prettier */
 import mqtt, { IClientOptions } from 'mqtt'
 import { createAppointmentCommand } from '../../Application/Commands/createAppointmentCommand';
-// import { convertToLocalTime } from '../../Domain/Utils/dateUtils';
+import { convertToLocalTime } from '../../Domain/Utils/dateUtils';
 
 
 export class MQTTController {
@@ -14,7 +14,7 @@ export class MQTTController {
         host: '80a9b426b200440c81e9c17c2ba85bc2.s2.eu.hivemq.cloud',
         protocol: 'mqtts',
         username: 'gusreinaos',
-        password: 'Mosquitto1204! '
+        password: 'Mosquitto1204!'
     }
 
     //readonly client = mqtt.connect('mqtt://broker.hivemq.com');
@@ -58,10 +58,11 @@ export class MQTTController {
                         case 'yes':
                             newAppointment = JSON.parse(this.appointment);
                             this.createAppointmentCommand.createAppointment(newAppointment.userId, newAppointment.dentistId, newAppointment.requestId, newAppointment.issuance, newAppointment.date);
+                            const date = convertToLocalTime(newAppointment.date, 'sv-SE')
                             savedAppointment = <JSON><unknown> {
                                 'userId': newAppointment.userId,
                                 'requestId': newAppointment.requestId,
-                                'date': newAppointment.date.toLocaleTimeString('sv-SE')
+                                'date': date
                             }
                             console.log(savedAppointment)
                             this.client.publish(this.appointmentResponse, JSON.stringify(savedAppointment));
