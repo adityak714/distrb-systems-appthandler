@@ -1,13 +1,4 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -16,15 +7,16 @@ exports.MQTTController = void 0;
 /* eslint-disable no-case-declarations */
 /* eslint-disable prettier/prettier */
 const mqtt_1 = __importDefault(require("mqtt"));
+const dateUtils_1 = require("../../Domain/Utils/dateUtils");
 class MQTTController {
     constructor(createAppointmentCommand) {
         this.createAppointmentCommand = createAppointmentCommand;
         this.options = {
             port: 8883,
-            host: 'e960f016875b4c75857353c7f267d899.s2.eu.hivemq.cloud',
+            host: '80a9b426b200440c81e9c17c2ba85bc2.s2.eu.hivemq.cloud',
             protocol: 'mqtts',
-            username: 'gusasarkw@student.gu.se',
-            password: 'Twumasi123.'
+            username: 'gusreinaos',
+            password: 'Mosquitto1204!'
         };
         //readonly client = mqtt.connect('mqtt://broker.hivemq.com');
         this.client = mqtt_1.default.connect(this.options);
@@ -37,8 +29,8 @@ class MQTTController {
         this.appointment = '';
     }
     connect() {
-        this.client.on("connect", () => {
-            console.log("Client is connected to the internet");
+        this.client.on('connect', () => {
+            console.log('Client is connected to the internet');
             this.client.subscribe(this.appointmentRequest, { qos: 1 });
             this.client.subscribe(this.availabilityResponse, { qos: 1 });
             console.log('Client has subscribed successfully');
@@ -65,11 +57,13 @@ class MQTTController {
                         case 'yes':
                             newAppointment = JSON.parse(this.appointment);
                             this.createAppointmentCommand.createAppointment(newAppointment.userId, newAppointment.dentistId, newAppointment.requestId, newAppointment.issuance, newAppointment.date);
+                            const date = (0, dateUtils_1.convertToLocalTime)(newAppointment.date, 'sv-SE');
                             savedAppointment = {
-                                'usrId': newAppointment.userId,
+                                'userId': newAppointment.userId,
                                 'requestId': newAppointment.requestId,
-                                'date': newAppointment.date
+                                'date': date
                             };
+                            console.log(savedAppointment);
                             this.client.publish(this.appointmentResponse, JSON.stringify(savedAppointment));
                             break;
                         case 'no':
@@ -86,74 +80,6 @@ class MQTTController {
                 }
             });
         });
-    }
-    publish(topic, responseMessage) {
-        this.client.on('connect', () => {
-            this.client.publish(topic, responseMessage, (err) => {
-                if (err) {
-                    console.log("Error in publishing the message" + err);
-                }
-                else {
-                    console.log("Topic: " + topic + " , message: " + responseMessage);
-                }
-            });
-        });
-    }
-    testPublish() {
-        let message = JSON.stringify({ "userId": 12345, "requestId": 13, "dentistId": 1, "issuance": 1602406766314, "date": "2020-12-14 14:00:00" });
-        let i = 0;
-        this.client.on('connect', () => {
-            while (i < 5) {
-                this.client.publish('availability/request', message, { qos: 1 });
-                console.log(i);
-                i++;
-            }
-            console.log('done');
-        });
-    }
-    //Subscribe to frontend request
-    subscribe() {
-        this.client.on('connect', () => {
-            this.client.subscribe(this.appointmentRequest);
-            this.client.subscribe(this.availabilityResponse);
-            console.log('Client has subscribed successfully');
-        });
-        this.client.on('message', (topic, message) => __awaiter(this, void 0, void 0, function* () {
-            if (topic === this.appointmentRequest) {
-                this.appointment = message.toString();
-                const newMessage = JSON.parse(this.appointment);
-                const response = {
-                    'dentistId': newMessage.dentistId,
-                    'date': newMessage.date
-                };
-                console.log(response);
-                this.publish(this.availabilityRequest, JSON.stringify(response));
-            }
-            else if (topic === this.availabilityResponse) {
-                let newAppointment = null;
-                let savedAppointment = null;
-                switch (message.toString()) {
-                    case 'yes':
-                        newAppointment = JSON.parse(this.appointment.toString());
-                        this.createAppointmentCommand.createAppointment(newAppointment.userId, newAppointment.dentistId, newAppointment.requestId, newAppointment.issuance, newAppointment.date);
-                        savedAppointment = {
-                            'userId': newAppointment.userId,
-                            'requestId': newAppointment.requestId,
-                            'date': newAppointment.date
-                        };
-                        this.publish(this.appointmentResponse, JSON.stringify(savedAppointment));
-                        break;
-                    case 'no':
-                        newAppointment = JSON.parse(this.appointment.toString());
-                        savedAppointment = {
-                            'userId': newAppointment.userId,
-                            'requestId': newAppointment.requestId,
-                            'date': 'none'
-                        };
-                        this.publish(this.appointmentResponse, JSON.stringify(savedAppointment));
-                }
-            }
-        }));
     }
 }
 exports.MQTTController = MQTTController;
