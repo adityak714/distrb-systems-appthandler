@@ -10,7 +10,11 @@ class dentistryRepository {
     async createDentistries() {
         console.log('Executing the repository');
         for (let i = 0; i < dentistries_json_1.default.dentists.length; i++) {
-            await dentistrySchema_1.default.create(dentistries_json_1.default.dentists[i]);
+            const checker = await dentistrySchema_1.default.exists({ name: dentistries_json_1.default.dentists[i].name });
+            console.log(checker);
+            if (checker === null) {
+                await dentistrySchema_1.default.create(dentistries_json_1.default.dentists[i]);
+            }
         }
     }
 }
