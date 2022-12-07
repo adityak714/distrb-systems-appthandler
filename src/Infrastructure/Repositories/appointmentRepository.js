@@ -7,9 +7,16 @@ exports.appointmentRepository = void 0;
 const appointmentSchema_1 = __importDefault(require("../Models/appointmentSchema"));
 class appointmentRepository {
     async registerAppointment(newAppointment) {
-        newAppointment.date.setMinutes(0).toString();
-        newAppointment.date.setSeconds(0);
-        await appointmentSchema_1.default.create(newAppointment).toString();
+        if (newAppointment.date.getMinutes() >= 0 && newAppointment.date.getMinutes() <= 29) {
+            newAppointment.date.setMinutes(0);
+            newAppointment.date.setSeconds(0);
+        }
+        else if (newAppointment.date.getMinutes() >= 30 && newAppointment.date.getMinutes() <= 59) {
+            newAppointment.date.setMinutes(30);
+            newAppointment.date.setSeconds(0);
+        }
+        console.log(newAppointment.date);
+        await appointmentSchema_1.default.create(newAppointment);
     }
 }
 exports.appointmentRepository = appointmentRepository;
