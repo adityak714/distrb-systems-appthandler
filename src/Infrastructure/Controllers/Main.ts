@@ -1,14 +1,25 @@
 import {createAppointmentCommand} from '../../Application/Commands/createAppointmentCommand';
+import {createDentistriesCommand} from '../../Application/Commands/createDentistriesCommand';
 import {appointmentRepository} from '../Repositories/appointmentRepository';
 import {MQTTController} from './MQTTController';
 import mongoose from 'mongoose';
+import {dentistryRepository} from '../Repositories/dentistryRepository';
+
+/*
+mongoose.connect(
+  'mongodb+srv://gusreinaos:4MNbebz6E04hq5IV@cluster0.x1srwma.mongodb.net/test'
+);
+*/
 
 mongoose.connect(
   'mongodb+srv://gusreinaos:4MNbebz6E04hq5IV@cluster0.x1srwma.mongodb.net/test'
 );
 
-//Execute seeder
-
-const repository = new appointmentRepository();
-const command = new createAppointmentCommand(repository);
-new MQTTController(command).subscribe();
+const repository1 = new dentistryRepository();
+repository1.createDentistries().then(object => {
+  new createDentistriesCommand(repository1);
+  console.log('dentists created');
+  const repository2 = new appointmentRepository();
+  const command = new createAppointmentCommand(repository2);
+  new MQTTController(command).connect();
+});
