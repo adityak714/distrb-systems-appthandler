@@ -110,6 +110,7 @@ class MQTTController {
                             newAppointment = JSON.parse(this.appointment);
                             this.editAppointmentCommand.editAppointment(newAppointment.userId, newAppointment.dentistId, newAppointment.requestId, newAppointment.issuance, newAppointment.date, newAppointment.editDate);
                             const date = (0, dateUtils_1.convertToLocalTime)(newAppointment.editDate, 'sv-SE');
+                            console.log(date);
                             savedAppointment = {
                                 'userId': newAppointment.userId,
                                 'requestId': newAppointment.requestId,
