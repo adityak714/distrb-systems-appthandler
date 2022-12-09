@@ -1,4 +1,5 @@
 import {createAppointmentCommand} from '../../Application/Commands/createAppointmentCommand';
+import { editAppointmentCommand } from '../../Application/Commands/editAppointmentCommand';
 import {createDentistriesCommand} from '../../Application/Commands/createDentistriesCommand';
 import {appointmentRepository} from '../Repositories/appointmentRepository';
 import {MQTTController} from './MQTTController';
@@ -21,5 +22,6 @@ repository1.createDentistries().then(object => {
   console.log('dentists created');
   const repository2 = new appointmentRepository();
   const command = new createAppointmentCommand(repository2);
-  new MQTTController(command).connect();
+  const editCommand = new editAppointmentCommand(repository2);
+  new MQTTController(command, editCommand).connect();
 });

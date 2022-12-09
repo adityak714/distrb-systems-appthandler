@@ -16,4 +16,16 @@ export class appointmentRepository implements IAppointmentRepository {
     console.log(newAppointment.date);
     await Appointment.create(newAppointment);
   }
+  async updateAppointment(newAppointment: IAppointment, newDate: Date ): Promise<void> {
+    const filter = {dentistId: newAppointment.dentistId, date: newAppointment.date}
+    const update = {date: newDate}
+    const appointment = await Appointment.findOneAndUpdate(filter, update, {opts: true}) ;
+    if(appointment === null) {
+      console.log('appointment not updated')
+    }
+    else {
+      console.log(appointment)
+    }
+
+  }
 }
