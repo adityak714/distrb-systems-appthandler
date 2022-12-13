@@ -1,6 +1,7 @@
 import {createAppointmentCommand} from '../../Application/Commands/createAppointmentCommand';
 import { editAppointmentCommand } from '../../Application/Commands/editAppointmentCommand';
 import {createDentistriesCommand} from '../../Application/Commands/createDentistriesCommand';
+import { getAppointmentsCommand } from '../../Application/Commands/getAppointmentsCommand';
 import {appointmentRepository} from '../Repositories/appointmentRepository';
 import {MQTTController} from './MQTTController';
 import mongoose from 'mongoose';
@@ -23,5 +24,6 @@ repository1.createDentistries().then(object => {
   const repository2 = new appointmentRepository();
   const command = new createAppointmentCommand(repository2);
   const editCommand = new editAppointmentCommand(repository2);
-  new MQTTController(command, editCommand).connect();
+  const getCommand = new getAppointmentsCommand(repository1);
+  new MQTTController(command, editCommand, getCommand).connect();
 });

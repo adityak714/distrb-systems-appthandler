@@ -20,18 +20,21 @@ class appointmentRepository {
     }
     async updateAppointment(newAppointment, newDate) {
         console.log(newDate);
+        let status = '';
         const filter = { date: newAppointment.date, dentistId: newAppointment.dentistId };
         const update = { date: newDate };
         await appointmentSchema_1.default.updateOne(filter, update).then((appointment) => {
-            if (appointment === null) {
-                console.log("appointment not updated");
+            console.log(appointment);
+            if (appointment.modifiedCount === 0) {
+                status = 'not updated';
             }
             else {
-                console.log("appointment updated" + appointment);
+                status = 'updated';
             }
         }).catch((err) => {
             console.log(err);
         });
+        return status;
     }
 }
 exports.appointmentRepository = appointmentRepository;

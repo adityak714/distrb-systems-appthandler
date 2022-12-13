@@ -3,12 +3,14 @@
 import mqtt, { IClientOptions } from 'mqtt'
 import { createAppointmentCommand } from '../../Application/Commands/createAppointmentCommand';
 import { editAppointmentCommand } from '../../Application/Commands/editAppointmentCommand';
+import { getAppointmentsCommand } from '../../Application/Commands/getAppointmentsCommand';
+import { convertDate } from '../../Domain/Utils/convertDate';
 import { convertToLocalTime } from '../../Domain/Utils/dateUtils';
 
 
 export class MQTTController {
 
-    constructor(private createAppointmentCommand: createAppointmentCommand, private editAppointmentCommand: editAppointmentCommand){}
+    constructor(private createAppointmentCommand: createAppointmentCommand, private editAppointmentCommand: editAppointmentCommand, private getAppointmentsCommand: getAppointmentsCommand){}
 
     readonly options: IClientOptions = {
         port: 8883,
@@ -33,6 +35,8 @@ export class MQTTController {
     readonly editResponse = 'edit/response'
     readonly editAvailabilityResponse = 'edit/availability/response'
     readonly editAvailabilityRequest = 'edit/availability/request'
+    readonly getAppointmentsRequest = 'get/appointments/request'
+    readonly getAppointmentsResponse = 'get/appointments/response'
 
     appointment = '';
     public connect() {
@@ -42,8 +46,10 @@ export class MQTTController {
             this.client.subscribe(this.editRequest)
             this.client.subscribe(this.editAvailabilityResponse, {qos: 1})
             this.client.subscribe(this.availabilityResponse, {qos: 1})
+            this.client.subscribe(this.getAppointmentsRequest, {qos: 1});
+            this.client.subscribe(this.getAppointmentsResponse, {qos: 1});
             console.log('Client has subscribed successfully')
-            this.client.on('message', (topic, message) => {
+            this.client.on('message', async (topic, message) => {
                 if (topic === this.appointmentRequest){
                     this.appointment = message.toString();
                     console.log(this.appointment)
@@ -55,6 +61,17 @@ export class MQTTController {
                     console.log(response)
                     this.client.publish(this.availabilityRequest, JSON.stringify(response), {qos: 1});
                     }
+                if(topic === this.getAppointmentsRequest) {
+                    const dentistryInfo = JSON.parse(message.toString());
+                    console.log(dentistryInfo)
+                    const appointments = await this.getAppointmentsCommand.getAllAppointments(dentistryInfo.dentistId)
+                    console.log(appointments);
+                    this.client.publish(this.getAppointmentsResponse, JSON.stringify(appointments))
+                }
+                if(topic === this.getAppointmentsResponse) {
+                    const appointments = JSON.parse(message.toString());
+                    console.log(appointments);
+                }
                  if (topic === this.availabilityResponse) {
                     let newAppointment = null;
                     let savedAppointment = null;
@@ -92,9 +109,10 @@ export class MQTTController {
                     this.appointment = message.toString()
                     console.log(this.appointment)
                     const newMessage = JSON.parse(this.appointment);
+                    const convertedDate = convertDate(newMessage.editDate)
                     const response: JSON = <JSON><unknown>{
                         'dentistId': newMessage.dentistId,
-                        'date': newMessage.editDate
+                        'date': convertedDate
                     }
                     console.log(response)
                     this.client.publish(this.editAvailabilityRequest, JSON.stringify(response), {qos: 1});
@@ -109,15 +127,24 @@ export class MQTTController {
                     switch(answer) {
                         case 'yes':
                             newAppointment = JSON.parse(this.appointment);
-                            this.editAppointmentCommand.editAppointment(newAppointment.userId, newAppointment.dentistId, newAppointment.requestId, newAppointment.issuance, newAppointment.date, newAppointment.editDate);
+                            const updatedStatus = await this.editAppointmentCommand.editAppointment(newAppointment.userId, newAppointment.dentistId, newAppointment.requestId, newAppointment.issuance, newAppointment.date, newAppointment.editDate);
                             const date = convertToLocalTime(newAppointment.editDate, 'sv-SE')
-                            console.log(date)
-                            savedAppointment = <JSON><unknown> {
-                                'userId': newAppointment.userId,
-                                'requestId': newAppointment.requestId,
-                                'date': date,
-                                'status': 'edited'
+                            console.log(updatedStatus)
+                            if(updatedStatus === 'updated') {
+                                savedAppointment = <JSON><unknown> {
+                                    'userId': newAppointment.userId,
+                                    'requestId': newAppointment.requestId,
+                                    'date': date,
+                                    'status': 'edited'
+                                }
+                            }else {
+                                savedAppointment = <JSON><unknown> {
+                                    'userId': newAppointment.userId,
+                                    'requestId': newAppointment.requestId,
+                                    'date': 'none',
+                                }
                             }
+                           
                             console.log(savedAppointment)
                             this.client.publish(this.editResponse, JSON.stringify(savedAppointment), {qos: 1});
                             break;
