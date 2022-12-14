@@ -69,7 +69,10 @@ class MQTTController {
                 }
                 if (topic === this.getAppointmentsResponse) {
                     const appointments = JSON.parse(message.toString());
-                    console.log(appointments);
+                    console.log(appointments.length);
+                    for (let i = 0; i < appointments.length; i++) {
+                        console.log(appointments[i].date);
+                    }
                 }
                 if (topic === this.availabilityResponse) {
                     let newAppointment = null;
