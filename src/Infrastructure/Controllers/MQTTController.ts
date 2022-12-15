@@ -4,13 +4,15 @@ import mqtt, { IClientOptions } from 'mqtt'
 import { createAppointmentCommand } from '../../Application/Commands/createAppointmentCommand';
 import { editAppointmentCommand } from '../../Application/Commands/editAppointmentCommand';
 import { getAppointmentsCommand } from '../../Application/Commands/getAppointmentsCommand';
+import { deleteAppointmentCommand } from '../../Application/Commands/deleteAppointmentCommand';
 import { convertDate } from '../../Domain/Utils/convertDate';
 import { convertToLocalTime } from '../../Domain/Utils/dateUtils';
 
 
 export class MQTTController {
 
-    constructor(private createAppointmentCommand: createAppointmentCommand, private editAppointmentCommand: editAppointmentCommand, private getAppointmentsCommand: getAppointmentsCommand){}
+    constructor(private createAppointmentCommand: createAppointmentCommand, private editAppointmentCommand: editAppointmentCommand, private getAppointmentsCommand: getAppointmentsCommand,
+        private deleteAppointmentCommand: deleteAppointmentCommand){}
 
     readonly options: IClientOptions = {
         port: 8883,
@@ -37,6 +39,8 @@ export class MQTTController {
     readonly editAvailabilityRequest = 'edit/availability/request'
     readonly getAppointmentsRequest = 'get/appointments/request'
     readonly getAppointmentsResponse = 'get/appointments/response'
+    readonly deleteAppointmentRequest = 'delete/appointment/request'
+    readonly deleteAppointmentResponse = 'delete/appointment/response'
 
     appointment = '';
     public connect() {
@@ -48,6 +52,8 @@ export class MQTTController {
             this.client.subscribe(this.availabilityResponse, {qos: 1})
             this.client.subscribe(this.getAppointmentsRequest, {qos: 1});
             this.client.subscribe(this.getAppointmentsResponse, {qos: 1});
+            this.client.subscribe(this.deleteAppointmentRequest, {qos: 1});
+            this.client.subscribe(this.deleteAppointmentResponse, {qos: 1});
             console.log('Client has subscribed successfully')
             this.client.on('message', async (topic, message) => {
                 if (topic === this.appointmentRequest){
@@ -161,7 +167,20 @@ export class MQTTController {
                         }
                 this.appointment = ''
                 }
-
+                if(topic === this.deleteAppointmentRequest) {
+                    const newAppointment  = JSON.parse(message.toString());
+                    console.log("delete message ", newAppointment)
+                    const answer = await this.deleteAppointmentCommand.deleteApointment(newAppointment.userId, newAppointment.dentistId, newAppointment.requestId, newAppointment.issuance, newAppointment.date)
+                    console.log(answer)
+                    const response = <JSON><unknown> {
+                        'response': answer
+                    }
+                    this.client.publish(this.deleteAppointmentResponse, JSON.stringify(response), {qos: 1})
+                }
+                if(topic === this.deleteAppointmentResponse) {
+                    const deletedStatus = JSON.parse(message.toString());
+                    console.log(deletedStatus)
+                }
                 })
                
 

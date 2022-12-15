@@ -11,6 +11,7 @@ const appointmentRepository_1 = require("../Repositories/appointmentRepository")
 const MQTTController_1 = require("./MQTTController");
 const mongoose_1 = __importDefault(require("mongoose"));
 const dentistryRepository_1 = require("../Repositories/dentistryRepository");
+const deleteAppointmentCommand_1 = require("../../Application/Commands/deleteAppointmentCommand");
 /*
 mongoose.connect(
   'mongodb+srv://gusreinaos:4MNbebz6E04hq5IV@cluster0.x1srwma.mongodb.net/test'
@@ -25,5 +26,6 @@ repository1.createDentistries().then(object => {
     const command = new createAppointmentCommand_1.createAppointmentCommand(repository2);
     const editCommand = new editAppointmentCommand_1.editAppointmentCommand(repository2);
     const getCommand = new getAppointmentsCommand_1.getAppointmentsCommand(repository1);
-    new MQTTController_1.MQTTController(command, editCommand, getCommand).connect();
+    const deleteCommand = new deleteAppointmentCommand_1.deleteAppointmentCommand(repository2);
+    new MQTTController_1.MQTTController(command, editCommand, getCommand, deleteCommand).connect();
 });
