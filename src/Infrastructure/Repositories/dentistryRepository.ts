@@ -19,7 +19,7 @@ export class dentistryRepository implements IDentistryRepository {
   async getAllAppointments(dentistIdNumber: Number): Promise<any[]> {
   let allAppointments: any[] = [];
   var filter = {dentistId: dentistIdNumber};
-   await Appointment.find(filter).then(appointments => {
+   await Appointment.find(filter).sort({Date: -1}).then(appointments => {
     allAppointments = appointments;
     console.log(allAppointments)
    })
