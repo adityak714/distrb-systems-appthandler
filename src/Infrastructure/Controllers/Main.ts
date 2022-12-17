@@ -6,6 +6,7 @@ import {appointmentRepository} from '../Repositories/appointmentRepository';
 import {MQTTController} from './MQTTController';
 import mongoose from 'mongoose';
 import {dentistryRepository} from '../Repositories/dentistryRepository';
+import { deleteAppointmentCommand } from '../../Application/Commands/deleteAppointmentCommand';
 
 /*
 mongoose.connect(
@@ -25,5 +26,6 @@ repository1.createDentistries().then(object => {
   const command = new createAppointmentCommand(repository2);
   const editCommand = new editAppointmentCommand(repository2);
   const getCommand = new getAppointmentsCommand(repository1);
-  new MQTTController(command, editCommand, getCommand).connect();
+  const deleteCommand = new deleteAppointmentCommand(repository2);
+  new MQTTController(command, editCommand, getCommand, deleteCommand).connect();
 });
