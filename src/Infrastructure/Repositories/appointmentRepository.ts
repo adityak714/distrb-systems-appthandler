@@ -2,6 +2,7 @@
 import {IAppointment} from '../../Domain/Intefaces/IAppointment';
 import Appointment from '../Models/appointmentSchema';
 import {IAppointmentRepository} from '../../Domain/Intefaces/IAppointmentRepository';
+import { AnyError } from 'mongodb';
 
 export class appointmentRepository implements IAppointmentRepository {
   async registerAppointment(newAppointment: IAppointment): Promise<void> {
@@ -34,19 +35,11 @@ export class appointmentRepository implements IAppointmentRepository {
     })
     return status
   }
-  async deleteAppointment(newAppointment: IAppointment, newDate: Date ): Promise<string> {
-    console.log(newDate)
-    let status: string = ''
+  async deleteAppointment(newAppointment: IAppointment): Promise<any> {
+    let status: any
     const filter = { date: newAppointment.date,dentistId: newAppointment.dentistId}
-    const update = {date: newDate}
-    await Appointment.updateOne(filter, update).then((appointment) => {
-      console.log(appointment)
-      if(appointment.modifiedCount === 0) {
-        status = 'not deleted'
-      }
-      else {
-        status = 'deleted'
-      }
+    await Appointment.deleteOne(filter).then((result) => {
+      status = result
     }).catch((err) => {
       console.log(err)
     })
