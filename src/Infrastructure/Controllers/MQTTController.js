@@ -20,10 +20,7 @@ class MQTTController {
             host: 'e960f016875b4c75857353c7f267d899.s2.eu.hivemq.cloud',
             protocol: 'mqtts',
             username: 'gusasarkw@student.gu.se',
-            password: 'Twumasi123.',
-            properties: {
-                receiveMaximum: 5000
-            }
+            password: 'Twumasi123.'
         };
         //readonly client = mqtt.connect('mqtt://broker.hivemq.com');
         this.client = mqtt_1.default.connect(this.options);
@@ -171,7 +168,7 @@ class MQTTController {
                 if (topic === this.deleteAppointmentRequest) {
                     const newAppointment = JSON.parse(message.toString());
                     console.log("delete message ", newAppointment);
-                    const answer = await this.deleteAppointmentCommand.deleteApointment(newAppointment.userId, newAppointment.dentistId, newAppointment.requestId, newAppointment.issuance, newAppointment.date);
+                    const answer = await this.deleteAppointmentCommand.deleteAppointment(newAppointment.userId, newAppointment.dentistId, newAppointment.requestId, newAppointment.issuance, newAppointment.date);
                     console.log(answer);
                     const response = {
                         'response': answer

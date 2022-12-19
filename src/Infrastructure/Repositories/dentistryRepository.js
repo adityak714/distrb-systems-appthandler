@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.dentistryRepository = void 0;
-const dentistries_json_1 = __importDefault(require("../Files/dentistries.json"));
+const dentistries_json_1 = __importDefault(require("../../Files/dentistries.json"));
 const dentistrySchema_1 = __importDefault(require("../Models/dentistrySchema"));
 const appointmentSchema_1 = __importDefault(require("../Models/appointmentSchema"));
 class dentistryRepository {
@@ -21,7 +21,7 @@ class dentistryRepository {
     async getAllAppointments(dentistIdNumber) {
         let allAppointments = [];
         var filter = { dentistId: dentistIdNumber };
-        await appointmentSchema_1.default.find(filter).then(appointments => {
+        await appointmentSchema_1.default.find(filter).sort({ Date: -1 }).then(appointments => {
             allAppointments = appointments;
             console.log(allAppointments);
         });
