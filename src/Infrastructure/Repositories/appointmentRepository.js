@@ -36,5 +36,16 @@ class appointmentRepository {
         });
         return status;
     }
+    async deleteAppointment(newAppointment) {
+        let deletedStatus = 'no';
+        const filter = { date: newAppointment.date, dentistId: newAppointment.dentistId };
+        await appointmentSchema_1.default.findOneAndDelete(filter).then((appointment) => {
+            if (appointment !== null) {
+                deletedStatus = 'yes';
+                console.log(appointment);
+            }
+        });
+        return deletedStatus;
+    }
 }
 exports.appointmentRepository = appointmentRepository;

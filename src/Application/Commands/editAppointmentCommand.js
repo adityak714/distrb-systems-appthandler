@@ -13,7 +13,6 @@ class editAppointmentCommand {
         const checkDate = (0, convertDate_1.convertDate)(newDate);
         //Generating UTC0 since it is the international date stored in the database
         const newAppointment = new Appointment_1.Appointment(Number(userId), Number(dentistId), Number(requestId), Number(issuance), convertedDate);
-        console.log("appointment", newAppointment.date);
         return await this.appointmentRepository.updateAppointment(newAppointment, checkDate);
     }
 }

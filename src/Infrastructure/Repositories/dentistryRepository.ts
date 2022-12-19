@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { IAppointment } from '../../Domain/Intefaces/IAppointment';
 import {IDentistryRepository} from '../../Domain/Intefaces/IDentistryRepository';
-import dentists from '../Files/dentistries.json';
+import dentists from '../../Domain/Files/Dentistries.json'
 import DentistSchema from '../Models/dentistrySchema';
 import Appointment from '../Models/appointmentSchema'
 
