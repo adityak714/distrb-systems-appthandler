@@ -5,4 +5,5 @@ export interface IAppointmentRepository {
   registerAppointment(newAppointment: Appointment): Promise<void>;
   updateAppointment(newAppointment: Appointment, newDate: Date ) : Promise<string>
   deleteAppointment(newAppointment: Appointment): Promise<string>
+  getAllAppointments(dentistID: Number): Promise<any[]>
 }
