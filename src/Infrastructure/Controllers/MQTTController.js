@@ -17,10 +17,10 @@ class MQTTController {
         this.deleteAppointmentCommand = deleteAppointmentCommand;
         this.options = {
             port: 8883,
-            host: 'e960f016875b4c75857353c7f267d899.s2.eu.hivemq.cloud',
+            host: '50685a82c4c5422da6a39eb1b9961ce0.s2.eu.hivemq.cloud',
             protocol: 'mqtts',
-            username: 'gusasarkw@student.gu.se',
-            password: 'Twumasi123.'
+            username: 't2project',
+            password: 'T2project'
         };
         //readonly client = mqtt.connect('mqtt://broker.hivemq.com');
         this.client = mqtt_1.default.connect(this.options);
@@ -131,10 +131,11 @@ class MQTTController {
                     switch (answer) {
                         case 'yes':
                             newAppointment = JSON.parse(this.appointment);
-                            const updatedStatus = await this.editAppointmentCommand.editAppointment(newAppointment.userId, newAppointment.dentistId, newAppointment.requestId, newAppointment.issuance, newAppointment.date, newAppointment.editDate);
-                            const date = (0, dateUtils_1.convertToLocalTime)(newAppointment.editDate, 'sv-SE');
-                            console.log(updatedStatus);
-                            if (updatedStatus === 'updated') {
+                            const updatedAppointment = await this.editAppointmentCommand.editAppointment(newAppointment.userId, newAppointment.dentistId, newAppointment.requestId, newAppointment.issuance, newAppointment.date, newAppointment.editDate);
+                            const date = (0, convertDate_1.convertDate)(newAppointment.date.toString());
+                            console.log(updatedAppointment);
+                            console.log(date);
+                            if (updatedAppointment !== null) {
                                 savedAppointment = {
                                     'userId': newAppointment.userId,
                                     'requestId': newAppointment.requestId,

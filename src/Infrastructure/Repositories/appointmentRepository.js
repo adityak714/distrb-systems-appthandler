@@ -20,21 +20,18 @@ class appointmentRepository {
     }
     async updateAppointment(newAppointment, newDate) {
         console.log(newDate);
-        let status = '';
+        let updatedAppointment = null;
         const filter = { date: newAppointment.date, dentistId: newAppointment.dentistId };
         const update = { date: newDate };
-        await appointmentSchema_1.default.updateOne(filter, update).then((appointment) => {
+        await appointmentSchema_1.default.findOneAndUpdate(filter, update, { returnDocument: 'after' }).then((appointment) => {
             console.log(appointment);
-            if (appointment.modifiedCount === 0) {
-                status = 'not updated';
-            }
-            else {
-                status = 'updated';
+            if (appointment === null) {
+                updatedAppointment = appointment;
             }
         }).catch((err) => {
             console.log(err);
         });
-        return status;
+        return updatedAppointment;
     }
     async deleteAppointment(newAppointment) {
         let deletedStatus = 'no';

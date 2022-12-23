@@ -3,7 +3,6 @@ import {IAppointment} from '../../Domain/Intefaces/IAppointment';
 import Appointment from '../Models/appointmentSchema';
 import {IAppointmentRepository} from '../../Domain/Intefaces/IAppointmentRepository';
 
-
 export class appointmentRepository implements IAppointmentRepository {
   async registerAppointment(newAppointment: IAppointment): Promise<void> {
     if (newAppointment.date.getMinutes() >= 0 && newAppointment.date.getMinutes() <= 29) {
