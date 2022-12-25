@@ -1,13 +1,12 @@
 /* eslint-disable prettier/prettier */
-/* eslint-disable no-useless-escape */
 
 import nodemailer from 'nodemailer';
-import handlebars from 'handlebars';
-import fs from 'fs';
 // const nodemailer = require('nodemailer'):
 
+
 // Booking confirmation email, sent when a user books an appointment.
-async function mailBookingConfirmation(/*recepient, dentistry, timeslot, date, dentist*/) {
+
+async function mailBookingConfirmation(/*recipient, dentistry, timeslot, date, dentist*/) {
   await nodemailer.createTestAccount();
   const transporter = nodemailer.createTransport({
     host: 'smtp.office365.com',
@@ -22,11 +21,21 @@ async function mailBookingConfirmation(/*recepient, dentistry, timeslot, date, d
   });
   await transporter.sendMail({
     from: '"Dentistimo Team" <dentistimo11@outlook.com',
-    to: 'alekseyzorin22@gmail.com',
+    to: 'alekseyzorin22@gmail.com', // Need to add recipient email with help of Backend.
     subject: 'Your Booking Confirmation',
-    text: 'Confirmation of booking!', // Plain text version of the message left empty because of HTML template below.
+    text: '',
     html:
-    '' ,
+    '<body style="margin: auto; width: 75%; border: 1.5px solid #79c2d0; padding: 20px;">' +
+    '<h1 style="color:green;text-align:center;"> Hello ' + 'recepient' + '! </h1> <br>'+
+    '<div1 style="font-size: 28px; padding: 35px;"> Thank you for booking an appointment with <b>Dentistimo</b>! <br>' +
+    'Here are your booking details: <br> </div1>' +
+    '<div2 style="text-align: justify;"> <ul style="border: 2px solid green; margin: 30px; padding: 20px; padding-left: 5%;">' +
+    '<li>Date: ' + 'date' + '</li> <li>Time: ' + 'timeslot' + '</li> <li>Dentistry: ' + 'dentistry' + '</li> <li>Dentist: ' + 'dentist' + '</li> </ul> </div2>' +
+    '<div3> If you would like to change or cancel your appointment, please press the buttons below: </div3> <br><br><br>' +
+    '<div4 style="font-size:22px;">' +
+    '<a href="https.dentistimo.website.edit" style="background-color: #006400; color: white; padding: 15px 32px; text-align: center; display: inline-block;font-size: 16px;">Edit Appointment</a> <br><br>' +
+    '<a href="https.dentistimo.website.cancel" style="background-color: #006400; color: white; padding: 15px 32px; text-align: center; display: inline-block; font-size: 16px;">Cancel Appointment</a> ' +
+    '<br><br><br> </div4> </body>',
     attachments: [
       {
         filename: 'mailLogo.png',
@@ -37,10 +46,12 @@ async function mailBookingConfirmation(/*recepient, dentistry, timeslot, date, d
   });
   console.log('Message sent: %s');
 }
-mailBookingConfirmation(/*recepient, dentistry, timeslot, date, dentist*/).catch(console.error);
+mailBookingConfirmation(/*recipient, dentistry, timeslot, date, dentist*/).catch(console.error);
+
 
 // Booking change email, sent when a user changes an appointment.
-async function mailBookingChange(/*recepient, dentistry, timeslot, date, dentist*/) {
+
+async function mailBookingChange(/*recipient, dentistry, timeslot, date, dentist*/) {
   await nodemailer.createTestAccount();
   const transporter = nodemailer.createTransport({
     host: 'smtp.office365.com',
@@ -55,11 +66,20 @@ async function mailBookingChange(/*recepient, dentistry, timeslot, date, dentist
   });
   await transporter.sendMail({
     from: '"Dentistimo Team" <dentistimo11@outlook.com',
-    to: 'alekseyzorin22@gmail.com',
+    to: 'alekseyzorin22@gmail.com', // Need to add recipient email with help of Backend.
     subject: 'Your Booking Confirmation',
-    text: 'You have changed your booking.', // Plain text version of the message left empty because of HTML template below.
+    text: '',
     html:
-    '' ,
+    '<body style="margin: auto; width: 75%; border: 1.5px solid #79c2d0; padding: 20px;">' +
+    '<h1 style="color:green;text-align:center;"> Hello ' + 'recepient' + '! </h1> <br>'+
+    '<div1 style="font-size: 28px; padding: 35px;"> You have changed your dentist appointment at <b>Dentistimo</b>. Here are your new booking details: <br> </div1>' +
+    '<div2 style="text-align: justify;"> <ul style="border: 2px solid green; margin: 30px; padding: 20px; padding-left: 5%;">' +
+    '<li>Date: ' + 'date' + '</li> <li>Time: ' + 'timeslot' + '</li> <li>Dentistry: ' + 'dentistry' + '</li> <li>Dentist: ' + 'dentist' + '</li> </ul> </div2>' +
+    '<div3> If you would like to change or cancel your appointment, please press the buttons below: </div3> <br><br><br>' +
+    '<div4 style="font-size:22px;">' +
+    '<a href="https.dentistimo.website.edit" style="background-color: #006400; color: white; padding: 15px 32px; text-align: center; display: inline-block;font-size: 16px;">Edit Appointment</a> <br><br>' +
+    '<a href="https.dentistimo.website.cancel" style="background-color: #006400; color: white; padding: 15px 32px; text-align: center; display: inline-block; font-size: 16px;">Cancel Appointment</a> ' +
+    '<br><br><br> </div4> </body>',
     attachments: [
       {
         filename: 'mailLogo.png',
@@ -70,10 +90,11 @@ async function mailBookingChange(/*recepient, dentistry, timeslot, date, dentist
   });
   console.log('Message sent: %s');
 }
-mailBookingChange(/*recepient, dentistry, timeslot, date, dentist*/).catch(console.error);
+mailBookingChange(/*recipient, dentistry, timeslot, date, dentist*/).catch(console.error);
 
 // Booking deletion email, sent when a user deletes an appointment.
-async function mailBookingDeletion(/*recepient, dentistry, timeslot, date, dentist*/) {
+
+async function mailBookingDeletion(/*recipient, dentistry, timeslot, date, dentist*/) {
   await nodemailer.createTestAccount();
   const transporter = nodemailer.createTransport({
     host: 'smtp.office365.com',
@@ -88,11 +109,20 @@ async function mailBookingDeletion(/*recepient, dentistry, timeslot, date, denti
   });
   await transporter.sendMail({
     from: '"Dentistimo Team" <dentistimo11@outlook.com',
-    to: 'alekseyzorin22@gmail.com',
+    to: 'alekseyzorin22@gmail.com', // Need to add recipient email with help of Backend.
     subject: 'Your Booking Confirmation',
-    text: 'You have deleted your booking.', // Plain text version of the message left empty because of HTML template below.
+    text: '',
     html:
-    '' ,
+    '<body style="margin: auto; width: 75%; border: 1.5px solid #79c2d0; padding: 20px;">' +
+    '<h1 style="color:green;text-align:center;"> Hello ' + 'recepient' + '! </h1> <br>'+
+    '<div1 style="font-size: 28px; padding: 35px;"> This is a confirmation that your booking at <b>Dentistimo</b> has been deleted. ' +
+    'Deleted booking details: <br> </div1>' +
+    '<div2 style="text-align: justify;"> <ul style="border: 2px solid green; margin: 30px; padding: 20px; padding-left: 5%;">' +
+    '<li>Date: ' + 'date' + '</li> <li>Time: ' + 'timeslot' + '</li> <li>Dentistry: ' + 'dentistry' + '</li> <li>Dentist: ' + 'dentist' + '</li> </ul> </div2>' +
+    '<div3> Please do not hesitate to book a new appointment with our booking service! </div3> <br><br><br>' +
+    '<div4 style="font-size:22px;">' +
+    '<a href="https.dentistimo.website.bookAppointment" style="background-color: #006400; color: white; padding: 15px 32px; text-align: center; display: inline-block;font-size: 16px;">Book a new appointment</a> <br><br>' +
+    '<br><br><br> </div4> </body>',
     attachments: [
       {
         filename: 'mailLogo.png',
@@ -103,4 +133,4 @@ async function mailBookingDeletion(/*recepient, dentistry, timeslot, date, denti
   });
   console.log('Message sent: %s');
 }
-mailBookingDeletion(/*recepient, dentistry, timeslot, date, dentist*/).catch(console.error);
+mailBookingDeletion(/*recipient, dentistry, timeslot, date, dentist).catch(console.error*/);
