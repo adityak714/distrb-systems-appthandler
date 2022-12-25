@@ -41,6 +41,7 @@ export class MQTTController {
     readonly getAppointmentsResponse = 'get/appointments/response'
     readonly deleteAppointmentRequest = 'delete/appointment/request'
     readonly deleteAppointmentResponse = 'delete/appointment/response'
+    readonly deleteAllAppointments = 'delete/appointments/request'
 
     appointment = '';
     public connect() {
@@ -54,6 +55,7 @@ export class MQTTController {
             this.client.subscribe(this.getAppointmentsResponse, {qos: 1});
             this.client.subscribe(this.deleteAppointmentRequest, {qos: 1});
             this.client.subscribe(this.deleteAppointmentResponse, {qos: 1});
+            this.client.subscribe(this.deleteAllAppointments, {qos: 1});
             console.log('Client has subscribed successfully')
             this.client.on('message', async (topic, message) => {
                 if (topic === this.appointmentRequest){
@@ -115,10 +117,9 @@ export class MQTTController {
                     this.appointment = message.toString()
                     console.log(this.appointment)
                     const newMessage = JSON.parse(this.appointment);
-                    const convertedDate = convertDate(newMessage.editDate)
                     const response: JSON = <JSON><unknown>{
                         'dentistId': newMessage.dentistId,
-                        'date': convertedDate
+                        'date': newMessage.editDate
                     }
                     console.log(response)
                     this.client.publish(this.editAvailabilityRequest, JSON.stringify(response), {qos: 1});
@@ -166,6 +167,11 @@ export class MQTTController {
                             this.client.publish(this.editResponse, JSON.stringify(savedAppointment), {qos: 1});
                         }
                 this.appointment = ''
+                }
+                if(topic === this.deleteAllAppointments) {
+                    const newMessage = JSON.parse(message.toString())
+                    const answer = await this.deleteAppointmentCommand.deleteAllAppointments(newMessage.dentistId)
+                    console.log(answer)
                 }
                 if(topic === this.deleteAppointmentRequest) {
                     const newAppointment  = JSON.parse(message.toString());

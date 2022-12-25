@@ -69,5 +69,15 @@ class appointmentRepository {
         });
         return allAppointments;
     }
+    async deleteAllAppointments(dentistIdNumber) {
+        let deletedStatus = 'no';
+        var filter = { dentistId: dentistIdNumber };
+        await appointmentSchema_1.default.deleteMany(filter).then(appointments => {
+            if (appointments !== null) {
+                deletedStatus = 'yes';
+            }
+        });
+        return deletedStatus;
+    }
 }
 exports.appointmentRepository = appointmentRepository;

@@ -68,4 +68,15 @@ export class appointmentRepository implements IAppointmentRepository {
     })
      return allAppointments
     }
+    async deleteAllAppointments(dentistIdNumber: Number): Promise<string> {
+      let deletedStatus : string = 'no'
+      var filter = {dentistId: dentistIdNumber};
+      await Appointment.deleteMany(filter).then(appointments => {
+        if(appointments !== null) {
+          deletedStatus = 'yes'
+        }
+       
+      })
+      return deletedStatus;
+    }
 }

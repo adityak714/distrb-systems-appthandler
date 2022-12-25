@@ -7,7 +7,6 @@ exports.MQTTController = void 0;
 /* eslint-disable no-case-declarations */
 /* eslint-disable prettier/prettier */
 const mqtt_1 = __importDefault(require("mqtt"));
-const convertDate_1 = require("../../Domain/Utils/convertDate");
 const dateUtils_1 = require("../../Domain/Utils/dateUtils");
 class MQTTController {
     constructor(createAppointmentCommand, editAppointmentCommand, getAppointmentsCommand, deleteAppointmentCommand) {
@@ -39,6 +38,7 @@ class MQTTController {
         this.getAppointmentsResponse = 'get/appointments/response';
         this.deleteAppointmentRequest = 'delete/appointment/request';
         this.deleteAppointmentResponse = 'delete/appointment/response';
+        this.deleteAllAppointments = 'delete/appointments/request';
         this.appointment = '';
     }
     connect() {
@@ -52,6 +52,7 @@ class MQTTController {
             this.client.subscribe(this.getAppointmentsResponse, { qos: 1 });
             this.client.subscribe(this.deleteAppointmentRequest, { qos: 1 });
             this.client.subscribe(this.deleteAppointmentResponse, { qos: 1 });
+            this.client.subscribe(this.deleteAllAppointments, { qos: 1 });
             console.log('Client has subscribed successfully');
             this.client.on('message', async (topic, message) => {
                 if (topic === this.appointmentRequest) {
@@ -113,10 +114,9 @@ class MQTTController {
                     this.appointment = message.toString();
                     console.log(this.appointment);
                     const newMessage = JSON.parse(this.appointment);
-                    const convertedDate = (0, convertDate_1.convertDate)(newMessage.editDate);
                     const response = {
                         'dentistId': newMessage.dentistId,
-                        'date': convertedDate
+                        'date': newMessage.editDate
                     };
                     console.log(response);
                     this.client.publish(this.editAvailabilityRequest, JSON.stringify(response), { qos: 1 });
@@ -164,6 +164,11 @@ class MQTTController {
                             this.client.publish(this.editResponse, JSON.stringify(savedAppointment), { qos: 1 });
                     }
                     this.appointment = '';
+                }
+                if (topic === this.deleteAllAppointments) {
+                    const newMessage = JSON.parse(message.toString());
+                    const answer = await this.deleteAppointmentCommand.deleteAllAppointments(newMessage.dentistId);
+                    console.log(answer);
                 }
                 if (topic === this.deleteAppointmentRequest) {
                     const newAppointment = JSON.parse(message.toString());
