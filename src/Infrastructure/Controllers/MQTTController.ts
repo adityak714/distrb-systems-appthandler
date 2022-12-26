@@ -176,7 +176,7 @@ export class MQTTController {
                 if(topic === this.deleteAppointmentRequest) {
                     const newAppointment  = JSON.parse(message.toString());
                     console.log("delete message ", newAppointment)
-                    const answer = await this.deleteAppointmentCommand.deleteAppointment(newAppointment.userId, newAppointment.dentistId, newAppointment.requestId, newAppointment.issuance, newAppointment.date)
+                    const answer = await this.deleteAppointmentCommand.deleteAppointment(newAppointment.userId, newAppointment.dentistId, newAppointment.date)
                     console.log(answer)
                     const response = <JSON><unknown> {
                         'response': answer

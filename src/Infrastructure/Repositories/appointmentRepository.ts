@@ -37,9 +37,9 @@ export class appointmentRepository implements IAppointmentRepository {
     })
     return status
   }
-  async deleteAppointment(newAppointment: IAppointment): Promise<string> {
+  async deleteAppointment(newDate: Date, newDentistId: Number): Promise<string> {
     let deletedStatus : string = 'no'
-    const filter = { date: newAppointment.date, dentistId: newAppointment.dentistId}
+    const filter = { date: newDate, dentistId: newDentistId }
     await Appointment.findOneAndDelete(filter).then((appointment) => {
       if(appointment !== null) {
         deletedStatus = 'yes'
