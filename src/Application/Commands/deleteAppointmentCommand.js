@@ -10,7 +10,7 @@ class deleteAppointmentCommand {
     }
     async deleteAppointment(userId, dentistId, requestId, issuance, date) {
         const convertedDate = (0, convertDate_1.convertDate)(date);
-        const appointment = new Appointment_1.Appointment(Number(userId), Number(dentistId), Number(requestId), Number(issuance), convertedDate);
+        const appointment = new Appointment_1.Appointment(userId, Number(dentistId), Number(requestId), Number(issuance), convertedDate);
         return await this.appointmentRepository.deleteAppointment(appointment);
     }
 }

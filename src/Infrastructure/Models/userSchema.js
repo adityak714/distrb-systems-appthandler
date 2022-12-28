@@ -23,12 +23,17 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+/* eslint-disable no-useless-escape */
 const mongoose_1 = __importStar(require("mongoose"));
-const appointmentSchema = new mongoose_1.Schema({
-    userId: { type: String },
-    dentistId: { type: Number },
-    requestId: { type: Number },
-    issuance: { type: Number },
-    date: { type: Date },
+const userSchema = new mongoose_1.Schema({
+    jwtToken: { type: String, required: true },
+    name: { type: String, required: true },
+    email: {
+        type: String,
+        required: true,
+        unique: true,
+        match: /.+\@.+\..+/,
+    },
+    password: { type: String, required: true },
 });
-exports.default = mongoose_1.default.model('Appointment', appointmentSchema);
+exports.default = mongoose_1.default.model('User', userSchema);
