@@ -5,22 +5,26 @@ import { createAppointmentCommand } from '../../Application/Commands/createAppoi
 import { editAppointmentCommand } from '../../Application/Commands/editAppointmentCommand';
 import { getAppointmentsCommand } from '../../Application/Commands/getAppointmentsCommand';
 import { deleteAppointmentCommand } from '../../Application/Commands/deleteAppointmentCommand';
+import { getUserQuery } from '../../Application/Queries/getUserQuery';
 import { convertDate } from '../../Domain/Utils/convertDate';
 import { convertToLocalTime } from '../../Domain/Utils/dateUtils';
+import { IUser } from '../../Domain/Intefaces/IUser';
+import { mailBookingConfirmation, mailBookingChange, mailBookingDeletion } from '../Notifications/emailService'
+
 
 
 export class MQTTController {
 
     constructor(private createAppointmentCommand: createAppointmentCommand, private editAppointmentCommand: editAppointmentCommand, private getAppointmentsCommand: getAppointmentsCommand,
-        private deleteAppointmentCommand: deleteAppointmentCommand){}
+        private deleteAppointmentCommand: deleteAppointmentCommand, private getUserQuery: getUserQuery){}
 
-    readonly options: IClientOptions = {
-        port: 8883,
-        host: 'e960f016875b4c75857353c7f267d899.s2.eu.hivemq.cloud',
-        protocol: 'mqtts',
-        username: 'gusasarkw@student.gu.se',
-        password: 'Twumasi123.'
-    }
+        readonly options: IClientOptions = {
+            port: 8883,
+            host: 'cb9fe4f292fe4099ae5eeb9f230c8346.s2.eu.hivemq.cloud',
+            protocol: 'mqtts',
+            username: 'T2Project',
+            password: 'Mamamia1234.'
+        }
 
     //readonly client = mqtt.connect('mqtt://broker.hivemq.com');
 
@@ -45,7 +49,13 @@ export class MQTTController {
     readonly userInformationResponse = 'information/response'
 
     appointment = '';
-    user = '';
+    user : IUser | null = {
+        'jwtToken': '',
+        'name': '',
+        'email': '',
+        'password': ''
+
+    }
     public connect() {
         this.client.on('connect', () => {
             console.log('Client is connected to the internet');
@@ -62,7 +72,10 @@ export class MQTTController {
                 if (topic === this.appointmentRequest){
                     this.appointment = message.toString();
                     console.log(this.appointment)
+                   
                     const newMessage = JSON.parse(this.appointment);
+                    this.user = await this.getUserQuery.getUser(newMessage.userId)
+                    console.log(this.user)
                     const response: JSON = <JSON><unknown>{
                         'dentistId': newMessage.dentistId,
                         'date': newMessage.date
@@ -99,8 +112,10 @@ export class MQTTController {
                                 'date': date
                             }
                             console.log(savedAppointment)
+                            await mailBookingConfirmation(this.user!.name, this.user!.email, newAppointment.dentistId, date).catch((err) => {
+                                console.log(err)
+                            })
                             this.client.publish(this.appointmentResponse, JSON.stringify(savedAppointment), {qos: 1});
-                            this.client.publish(this.userInformationRequest, newAppointment.userId);
                             break;
                         case 'no':
                             newAppointment = JSON.parse(this.appointment);
@@ -156,6 +171,9 @@ export class MQTTController {
                             }
                            
                             console.log(savedAppointment)
+                            await mailBookingChange(this.user!.email, newAppointment.dentistId, date, this.user!.name).catch((err) => {
+                                console.log(err)
+                            })
                             this.client.publish(this.editResponse, JSON.stringify(savedAppointment), {qos: 1});
                             break;
                         case 'no':
@@ -175,19 +193,22 @@ export class MQTTController {
                     const newAppointment  = JSON.parse(message.toString());
                     console.log("delete message ", newAppointment)
                     const answer = await this.deleteAppointmentCommand.deleteAppointment(newAppointment.userId, newAppointment.dentistId, newAppointment.requestId, newAppointment.issuance, newAppointment.date)
+                    const date = convertToLocalTime(newAppointment.date, 'sv-SE')
                     console.log(answer)
                     const response = <JSON><unknown> {
                         'response': answer
                     }
+                    await mailBookingChange(this.user!.email, newAppointment.dentistId, this.user!.name, date).catch((err) => {
+                        console.log(err)
+                    })
                     this.client.publish(this.deleteAppointmentResponse, JSON.stringify(response), {qos: 1})
                 }
                 if(topic === this.deleteAppointmentResponse) {
                     const deletedStatus = JSON.parse(message.toString());
                     console.log(deletedStatus)
                 }
-                if(topic === this.userInformationResponse) {
-                    this.user = JSON.parse(message.toString());
-                }
+
+                
                 })
         })
     }
