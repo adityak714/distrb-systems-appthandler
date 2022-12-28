@@ -7,7 +7,6 @@ exports.MQTTController = void 0;
 /* eslint-disable no-case-declarations */
 /* eslint-disable prettier/prettier */
 const mqtt_1 = __importDefault(require("mqtt"));
-const convertDate_1 = require("../../Domain/Utils/convertDate");
 const dateUtils_1 = require("../../Domain/Utils/dateUtils");
 const emailService_1 = require("../Notifications/emailService");
 class MQTTController {
@@ -49,6 +48,14 @@ class MQTTController {
             'name': '',
             'email': '',
             'password': ''
+        };
+        this.editAppointment = {
+            userId: '',
+            dentistId: '',
+            requestId: '',
+            issuance: '',
+            date: '',
+            editDate: ''
         };
     }
     connect() {
@@ -125,58 +132,52 @@ class MQTTController {
                     this.appointment = '';
                 }
                 if (topic === this.editRequest) {
-                    this.appointment = message.toString();
-                    console.log(this.appointment);
-                    const newMessage = JSON.parse(this.appointment);
-                    const convertedDate = (0, convertDate_1.convertDate)(newMessage.editDate);
+                    this.editAppointment = JSON.parse(message.toString());
                     const response = {
-                        'dentistId': newMessage.dentistId,
-                        'date': convertedDate
+                        'dentistId': this.editAppointment.dentistId,
+                        'date': this.editAppointment.date
                     };
                     console.log(response);
                     this.client.publish(this.editAvailabilityRequest, JSON.stringify(response), { qos: 1 });
                 }
                 if (topic === this.editAvailabilityResponse) {
-                    let newAppointment = null;
                     let savedAppointment = null;
                     const firstAnswer = JSON.parse(message.toString());
                     console.log(firstAnswer);
                     const answer = firstAnswer.response;
-                    console.log(answer);
                     switch (answer) {
                         case 'yes':
-                            newAppointment = JSON.parse(this.appointment);
-                            const updatedStatus = await this.editAppointmentCommand.editAppointment(newAppointment.userId, newAppointment.dentistId, newAppointment.requestId, newAppointment.issuance, newAppointment.date, newAppointment.editDate);
-                            const date = (0, dateUtils_1.convertToLocalTime)(newAppointment.editDate, 'sv-SE');
+                            const updatedStatus = await this.editAppointmentCommand.editAppointment(this.editAppointment.userId, this.editAppointment.dentistId, this.editAppointment.requestId, this.editAppointment.issuance, this.editAppointment.date, this.editAppointment.editDate);
+                            const date = (0, dateUtils_1.convertToLocalTime)(new Date(this.editAppointment.editDate), 'sv-SE');
                             console.log(updatedStatus);
                             if (updatedStatus === 'updated') {
                                 savedAppointment = {
-                                    'userId': newAppointment.userId,
-                                    'requestId': newAppointment.requestId,
+                                    'userId': this.editAppointment.userId,
+                                    'requestId': this.editAppointment.requestId,
                                     'date': date,
                                     'status': 'edited'
                                 };
+                                await (0, emailService_1.mailBookingChange)(this.user.email, this.editAppointment.dentistId, date, this.user.name).catch((err) => {
+                                    console.log(err);
+                                });
                             }
                             else {
                                 savedAppointment = {
-                                    'userId': newAppointment.userId,
-                                    'requestId': newAppointment.requestId,
+                                    'userId': this.editAppointment.userId,
+                                    'requestId': this.editAppointment.requestId,
                                     'date': 'none',
+                                    'status': 'not edited'
                                 };
                             }
                             console.log(savedAppointment);
-                            await (0, emailService_1.mailBookingChange)(this.user.email, newAppointment.dentistId, date, this.user.name).catch((err) => {
-                                console.log(err);
-                            });
                             this.client.publish(this.editResponse, JSON.stringify(savedAppointment), { qos: 1 });
                             break;
                         case 'no':
-                            newAppointment = JSON.parse(this.appointment);
-                            console.log(newAppointment);
                             savedAppointment = {
-                                'userId': newAppointment.userId,
-                                'requestId': newAppointment.requestId,
+                                'userId': this.editAppointment.userId,
+                                'requestId': this.editAppointment.requestId,
                                 'date': 'none',
+                                'status': 'not edited'
                             };
                             console.log(savedAppointment);
                             this.client.publish(this.editResponse, JSON.stringify(savedAppointment), { qos: 1 });
