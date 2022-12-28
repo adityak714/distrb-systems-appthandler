@@ -29,6 +29,12 @@ const appointmentSchema = new mongoose_1.Schema({
     dentistId: { type: Number },
     requestId: { type: Number },
     issuance: { type: Number },
+<<<<<<< HEAD
     date: { type: Date },
+=======
+    date: {
+        type: Date,
+    },
+>>>>>>> 444b483800f983c1964f44fe5c4ef290af1a3dbb
 });
 exports.default = mongoose_1.default.model('Appointment', appointmentSchema);
