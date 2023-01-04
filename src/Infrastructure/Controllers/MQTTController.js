@@ -70,12 +70,10 @@ class MQTTController {
                     const dentistryInfo = JSON.parse(message.toString());
                     console.log(dentistryInfo);
                     const appointments = await this.getAppointmentsCommand.getAllAppointments(dentistryInfo.dentistId);
-                    console.log(appointments);
                     this.client.publish(this.getAppointmentsResponse, JSON.stringify(appointments));
                 }
                 if (topic === this.getAppointmentsResponse) {
                     const appointments = JSON.parse(message.toString());
-                    console.log(appointments);
                 }
                 if (topic === this.availabilityResponse) {
                     let newAppointment = null;
@@ -173,7 +171,7 @@ class MQTTController {
                 if (topic === this.deleteAppointmentRequest) {
                     const newAppointment = JSON.parse(message.toString());
                     console.log("delete message ", newAppointment);
-                    const answer = await this.deleteAppointmentCommand.deleteAppointment(newAppointment.userId, newAppointment.dentistId, newAppointment.requestId, newAppointment.issuance, newAppointment.date);
+                    const answer = await this.deleteAppointmentCommand.deleteAppointment(newAppointment.userId, newAppointment.dentistId, newAppointment.date);
                     console.log(answer);
                     const response = {
                         'response': answer
