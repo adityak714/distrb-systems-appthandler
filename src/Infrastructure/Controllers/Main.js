@@ -25,7 +25,7 @@ repository1.createDentistries().then(object => {
     const repository2 = new appointmentRepository_1.appointmentRepository();
     const command = new createAppointmentCommand_1.createAppointmentCommand(repository2);
     const editCommand = new editAppointmentCommand_1.editAppointmentCommand(repository2);
-    const getCommand = new getAppointmentsCommand_1.getAppointmentsCommand(repository1);
+    const getCommand = new getAppointmentsCommand_1.getAppointmentsCommand(repository2);
     const deleteCommand = new deleteAppointmentCommand_1.deleteAppointmentCommand(repository2);
     new MQTTController_1.MQTTController(command, editCommand, getCommand, deleteCommand).connect();
 });

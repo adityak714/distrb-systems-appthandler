@@ -7,7 +7,6 @@ exports.MQTTController = void 0;
 /* eslint-disable no-case-declarations */
 /* eslint-disable prettier/prettier */
 const mqtt_1 = __importDefault(require("mqtt"));
-const convertDate_1 = require("../../Domain/Utils/convertDate");
 const dateUtils_1 = require("../../Domain/Utils/dateUtils");
 class MQTTController {
     constructor(createAppointmentCommand, editAppointmentCommand, getAppointmentsCommand, deleteAppointmentCommand) {
@@ -17,10 +16,10 @@ class MQTTController {
         this.deleteAppointmentCommand = deleteAppointmentCommand;
         this.options = {
             port: 8883,
-            host: 'e960f016875b4c75857353c7f267d899.s2.eu.hivemq.cloud',
+            host: 'cb9fe4f292fe4099ae5eeb9f230c8346.s2.eu.hivemq.cloud',
             protocol: 'mqtts',
-            username: 'gusasarkw@student.gu.se',
-            password: 'Twumasi123.'
+            username: 'T2Project',
+            password: 'Mamamia1234.'
         };
         //readonly client = mqtt.connect('mqtt://broker.hivemq.com');
         this.client = mqtt_1.default.connect(this.options);
@@ -39,6 +38,7 @@ class MQTTController {
         this.getAppointmentsResponse = 'get/appointments/response';
         this.deleteAppointmentRequest = 'delete/appointment/request';
         this.deleteAppointmentResponse = 'delete/appointment/response';
+        this.deleteAllAppointments = 'delete/appointments/request';
         this.appointment = '';
     }
     connect() {
@@ -52,6 +52,7 @@ class MQTTController {
             this.client.subscribe(this.getAppointmentsResponse, { qos: 1 });
             this.client.subscribe(this.deleteAppointmentRequest, { qos: 1 });
             this.client.subscribe(this.deleteAppointmentResponse, { qos: 1 });
+            this.client.subscribe(this.deleteAllAppointments, { qos: 1 });
             console.log('Client has subscribed successfully');
             this.client.on('message', async (topic, message) => {
                 if (topic === this.appointmentRequest) {
@@ -69,12 +70,10 @@ class MQTTController {
                     const dentistryInfo = JSON.parse(message.toString());
                     console.log(dentistryInfo);
                     const appointments = await this.getAppointmentsCommand.getAllAppointments(dentistryInfo.dentistId);
-                    console.log(appointments);
                     this.client.publish(this.getAppointmentsResponse, JSON.stringify(appointments));
                 }
                 if (topic === this.getAppointmentsResponse) {
                     const appointments = JSON.parse(message.toString());
-                    console.log(appointments);
                 }
                 if (topic === this.availabilityResponse) {
                     let newAppointment = null;
@@ -113,10 +112,9 @@ class MQTTController {
                     this.appointment = message.toString();
                     console.log(this.appointment);
                     const newMessage = JSON.parse(this.appointment);
-                    const convertedDate = (0, convertDate_1.convertDate)(newMessage.editDate);
                     const response = {
                         'dentistId': newMessage.dentistId,
-                        'date': convertedDate
+                        'date': newMessage.editDate
                     };
                     console.log(response);
                     this.client.publish(this.editAvailabilityRequest, JSON.stringify(response), { qos: 1 });
@@ -165,10 +163,15 @@ class MQTTController {
                     }
                     this.appointment = '';
                 }
+                if (topic === this.deleteAllAppointments) {
+                    const newMessage = JSON.parse(message.toString());
+                    const answer = await this.deleteAppointmentCommand.deleteAllAppointments(newMessage.dentistId);
+                    console.log(answer);
+                }
                 if (topic === this.deleteAppointmentRequest) {
                     const newAppointment = JSON.parse(message.toString());
                     console.log("delete message ", newAppointment);
-                    const answer = await this.deleteAppointmentCommand.deleteAppointment(newAppointment.userId, newAppointment.dentistId, newAppointment.requestId, newAppointment.issuance, newAppointment.date);
+                    const answer = await this.deleteAppointmentCommand.deleteAppointment(newAppointment.userId, newAppointment.dentistId, newAppointment.date);
                     console.log(answer);
                     const response = {
                         'response': answer

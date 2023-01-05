@@ -2,6 +2,8 @@
 import {IAppointment} from '../../Domain/Intefaces/IAppointment';
 import Appointment from '../Models/appointmentSchema';
 import {IAppointmentRepository} from '../../Domain/Intefaces/IAppointmentRepository';
+import { convertToLocalTime } from '../../Domain/Utils/dateUtils';
+import console from 'console';
 
 
 export class appointmentRepository implements IAppointmentRepository {
@@ -35,9 +37,9 @@ export class appointmentRepository implements IAppointmentRepository {
     })
     return status
   }
-  async deleteAppointment(newAppointment: IAppointment): Promise<string> {
+  async deleteAppointment(newDate: Date, newDentistId: Number): Promise<string> {
     let deletedStatus : string = 'no'
-    const filter = { date: newAppointment.date, dentistId: newAppointment.dentistId}
+    const filter = { date: newDate, dentistId: newDentistId }
     await Appointment.findOneAndDelete(filter).then((appointment) => {
       if(appointment !== null) {
         deletedStatus = 'yes'
@@ -46,4 +48,35 @@ export class appointmentRepository implements IAppointmentRepository {
     })
     return deletedStatus
   }
+  async getAllAppointments(dentistIdNumber: Number): Promise<any[]> {
+    let allAppointments: any[] = [];
+    var filter = {dentistId: dentistIdNumber};
+     await Appointment.find(filter).sort({Date: -1}).then(appointments => {
+      for(let i= 0; i< appointments.length; i++) {
+        const newDate = convertToLocalTime(appointments[i].date, 'sv-SE')
+        console.log(newDate)
+        let appointment = {
+          '_id': appointments[i].id,
+          'userId': appointments[i].userId,
+          'dentistId': appointments[i].dentistId,
+          'requestId': appointments[i].requestId,
+          'issuance': appointments[i].issuance,
+          'date': newDate
+        }
+      allAppointments.push(appointment)
+     }
+    })
+     return allAppointments
+    }
+    async deleteAllAppointments(dentistIdNumber: Number): Promise<string> {
+      let deletedStatus : string = 'no'
+      var filter = {dentistId: dentistIdNumber};
+      await Appointment.deleteMany(filter).then(appointments => {
+        if(appointments !== null) {
+          deletedStatus = 'yes'
+        }
+       
+      })
+      return deletedStatus;
+    }
 }

@@ -1,9 +1,9 @@
 /* eslint-disable prettier/prettier */
-import { IDentistryRepository } from "../../Domain/Intefaces/IDentistryRepository";
+import { IAppointmentRepository } from "../../Domain/Intefaces/IAppointmentRepository";
 export class getAppointmentsCommand {
-  constructor(private readonly dentistryRepository: IDentistryRepository) {}
+  constructor(private readonly appointmentRepository: IAppointmentRepository) {}
 
   public async getAllAppointments(dentistId: string) : Promise<any[]> {
-    return await this.dentistryRepository.getAllAppointments(Number(dentistId));
+    return await this.appointmentRepository.getAllAppointments(Number(dentistId));
   }
 }
