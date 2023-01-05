@@ -1,7 +1,7 @@
 export interface IAppointment {
-  userId: number;
+  userId: string;
   dentistId: number;
-  requestId: number;
-  issuance: number;
+  requestId: string;
+  issuance: string;
   date: Date;
 }

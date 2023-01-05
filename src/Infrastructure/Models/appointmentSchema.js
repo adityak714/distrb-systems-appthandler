@@ -25,10 +25,10 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const appointmentSchema = new mongoose_1.Schema({
-    userId: { type: Number },
+    userId: { type: String },
     dentistId: { type: Number },
-    requestId: { type: Number },
-    issuance: { type: Number },
+    requestId: { type: String },
+    issuance: { type: String },
     date: {
         type: Date,
     },

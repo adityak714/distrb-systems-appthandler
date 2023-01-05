@@ -38,9 +38,9 @@ class appointmentRepository {
         });
         return status;
     }
-    async deleteAppointment(newAppointment) {
+    async deleteAppointment(newDate, newDentistId) {
         let deletedStatus = 'no';
-        const filter = { date: newAppointment.date, dentistId: newAppointment.dentistId };
+        const filter = { date: newDate, dentistId: newDentistId };
         await appointmentSchema_1.default.findOneAndDelete(filter).then((appointment) => {
             if (appointment !== null) {
                 deletedStatus = 'yes';

@@ -8,7 +8,7 @@ export class editAppointmentCommand {
 
   public async editAppointment(userId: string, dentistId: string, requestId: string,issuance: string, date: string, newDate:string) {
     //Generating UTC0 since it is the international date stored in the database
-    const newAppointment = new Appointment(Number(userId), Number(dentistId), Number(requestId), Number(issuance), new Date(date));
+    const newAppointment = new Appointment(String(userId), Number(dentistId), String(requestId), String(issuance), new Date(date));
     return await this.appointmentRepository.updateAppointment(newAppointment, new Date (newDate));
   }
 }
