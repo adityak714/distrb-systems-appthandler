@@ -21,7 +21,8 @@ class MQTTController {
             host: 'cb9fe4f292fe4099ae5eeb9f230c8346.s2.eu.hivemq.cloud',
             protocol: 'mqtts',
             username: 'T2Project',
-            password: 'Mamamia1234.'
+            password: 'Mamamia1234.',
+            clientId: 'mqttjs_' + Math.random().toString(16).substring(2, 8)
         };
         //readonly client = mqtt.connect('mqtt://broker.hivemq.com');
         this.client = mqtt_1.default.connect(this.options);
@@ -42,12 +43,11 @@ class MQTTController {
         this.deleteAppointmentResponse = 'delete/appointment/response';
         this.userInformationRequest = 'information/request';
         this.userInformationResponse = 'information/response';
-        this.appointment = '';
         this.user = {
-            'jwtToken': '',
-            'name': '',
-            'email': '',
-            'password': ''
+            jwtToken: '',
+            name: '',
+            email: '',
+            password: ''
         };
         this.editAppointment = {
             userId: '',
@@ -56,6 +56,13 @@ class MQTTController {
             issuance: '',
             date: '',
             editDate: ''
+        };
+        this.appointment = {
+            userId: '',
+            dentistId: '',
+            requestId: '',
+            issuance: '',
+            date: '',
         };
     }
     connect() {
@@ -72,16 +79,14 @@ class MQTTController {
             console.log('Client has subscribed successfully');
             this.client.on('message', async (topic, message) => {
                 if (topic === this.appointmentRequest) {
-                    this.appointment = message.toString();
+                    this.appointment = JSON.parse(message.toString());
                     console.log(this.appointment);
-                    const newMessage = JSON.parse(this.appointment);
-                    this.user = await this.getUserQuery.getUser(newMessage.userId);
+                    this.user = await this.getUserQuery.getUser(this.appointment.userId);
                     console.log(this.user);
                     const response = {
-                        'dentistId': newMessage.dentistId,
-                        'date': newMessage.date
+                        'dentistId': this.appointment.dentistId,
+                        'date': this.appointment.date
                     };
-                    console.log(response);
                     this.client.publish(this.availabilityRequest, JSON.stringify(response), { qos: 1 });
                 }
                 if (topic === this.getAppointmentsRequest) {
@@ -104,38 +109,35 @@ class MQTTController {
                     console.log(answer);
                     switch (answer) {
                         case 'yes':
-                            newAppointment = JSON.parse(this.appointment);
-                            this.createAppointmentCommand.createAppointment(newAppointment.userId, newAppointment.dentistId, newAppointment.requestId, newAppointment.issuance, newAppointment.date);
-                            const date = (0, dateUtils_1.convertToLocalTime)(newAppointment.date, 'sv-SE');
+                            this.createAppointmentCommand.createAppointment(this.appointment.userId, this.appointment.dentistId, this.appointment.requestId, this.appointment.issuance, this.appointment.date);
+                            const date = (0, dateUtils_1.convertToLocalTime)(new Date(this.appointment.date), 'sv-SE');
                             savedAppointment = {
-                                'userId': newAppointment.userId,
-                                'requestId': newAppointment.requestId,
+                                'userId': this.appointment.userId,
+                                'requestId': this.appointment.requestId,
                                 'date': date
                             };
                             console.log(savedAppointment);
-                            await (0, emailService_1.mailBookingConfirmation)(this.user.name, this.user.email, newAppointment.dentistId, date).catch((err) => {
+                            await (0, emailService_1.mailBookingConfirmation)(this.user.name, this.user.email, this.appointment.dentistId, date).catch((err) => {
                                 console.log(err);
                             });
                             this.client.publish(this.appointmentResponse, JSON.stringify(savedAppointment), { qos: 1 });
                             break;
                         case 'no':
-                            newAppointment = JSON.parse(this.appointment);
-                            console.log(newAppointment);
                             savedAppointment = {
-                                'userId': newAppointment.userId,
-                                'requestId': newAppointment.requestId,
+                                'userId': this.appointment.userId,
+                                'requestId': this.appointment.requestId,
                                 'date': 'none'
                             };
                             console.log(savedAppointment);
                             this.client.publish(this.appointmentResponse, JSON.stringify(savedAppointment), { qos: 1 });
+                            break;
                     }
-                    this.appointment = '';
                 }
                 if (topic === this.editRequest) {
                     this.editAppointment = JSON.parse(message.toString());
                     const response = {
                         'dentistId': this.editAppointment.dentistId,
-                        'date': this.editAppointment.date
+                        'date': this.editAppointment.editDate
                     };
                     console.log(response);
                     this.client.publish(this.editAvailabilityRequest, JSON.stringify(response), { qos: 1 });
@@ -182,7 +184,6 @@ class MQTTController {
                             console.log(savedAppointment);
                             this.client.publish(this.editResponse, JSON.stringify(savedAppointment), { qos: 1 });
                     }
-                    this.appointment = '';
                 }
                 if (topic === this.deleteAppointmentRequest) {
                     const newAppointment = JSON.parse(message.toString());
@@ -193,7 +194,7 @@ class MQTTController {
                     const response = {
                         'response': answer
                     };
-                    await (0, emailService_1.mailBookingChange)(this.user.email, newAppointment.dentistId, this.user.name, date).catch((err) => {
+                    await (0, emailService_1.mailBookingDeletion)(this.user.email, newAppointment.dentistId, date, this.user.name).catch((err) => {
                         console.log(err);
                     });
                     this.client.publish(this.deleteAppointmentResponse, JSON.stringify(response), { qos: 1 });
