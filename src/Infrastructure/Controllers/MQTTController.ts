@@ -14,24 +14,25 @@ export class MQTTController {
     constructor(private createAppointmentCommand: createAppointmentCommand, private editAppointmentCommand: editAppointmentCommand, private getAppointmentsCommand: getAppointmentsCommand,
         private deleteAppointmentCommand: deleteAppointmentCommand){}
 
-       /* readonly options: IClientOptions = {
+        readonly options: IClientOptions = {
             port: 8883,
             host: 'cb9fe4f292fe4099ae5eeb9f230c8346.s2.eu.hivemq.cloud',
             protocol: 'mqtts',
             username: 'T2Project',
             password: 'Mamamia1234.'
         }
-        */
+        
+        /*
         readonly client = mqtt.connect('mqtt://broker.hivemq.com',{
             port: 1883,
             username: 'T2Project',
             password: 'Mamamia1234.',
-    
         });
+        */
 
     //readonly client = mqtt.connect('mqtt://broker.hivemq.com');
 
-    //readonly client = mqtt.connect(this.options);
+    readonly client = mqtt.connect(this.options);
     readonly mqtt_options = {qos: 1};
 
     readonly availabilityTopic = 'avaiability/#'
