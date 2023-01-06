@@ -79,4 +79,24 @@ export class appointmentRepository implements IAppointmentRepository {
       })
       return deletedStatus;
     }
+    async getAppointmentsByUserId(userID: string): Promise<any[]> {
+      let allAppointments: any[] = [];
+      var filter = {userId: userID};
+       await Appointment.find(filter).then(appointments => {
+        for(let i= 0; i< appointments.length; i++) {
+          const newDate = convertToLocalTime(appointments[i].date, 'sv-SE')
+          console.log(newDate)
+          let appointment = {
+            '_id': appointments[i].id,
+            'userId': appointments[i].userId,
+            'dentistId': appointments[i].dentistId,
+            'requestId': appointments[i].requestId,
+            'issuance': appointments[i].issuance,
+            'date': newDate
+          }
+        allAppointments.push(appointment)
+       }
+      })
+       return allAppointments
+      }
 }
