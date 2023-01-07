@@ -7,4 +7,5 @@ export interface IAppointmentRepository {
   deleteAppointment(date: Date, dentistId: Number): Promise<string>
   deleteAllAppointments(dentistID: Number): Promise<string>
   getAllAppointments(dentistID: Number): Promise<any[]>
+  getAppointmentsByUserId(userId: string): Promise<any[]>
 }
