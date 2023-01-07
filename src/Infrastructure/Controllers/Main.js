@@ -25,6 +25,7 @@ const userRepository = new userRepository_1.UserRepository();
 dentistryrepository.createDentistries().then(object => {
     new createDentistriesCommand_1.createDentistriesCommand(dentistryrepository);
     console.log('dentists created');
+<<<<<<< HEAD
     const appointmentrepository = new appointmentRepository_1.appointmentRepository();
     const command = new createAppointmentCommand_1.createAppointmentCommand(appointmentrepository);
     const editCommand = new editAppointmentCommand_1.editAppointmentCommand(appointmentrepository);
@@ -32,4 +33,12 @@ dentistryrepository.createDentistries().then(object => {
     const deleteCommand = new deleteAppointmentCommand_1.deleteAppointmentCommand(appointmentrepository);
     const userQuery = new getUserQuery_1.getUserQuery(userRepository);
     new MQTTController_1.MQTTController(command, editCommand, getCommand, deleteCommand, userQuery).connect();
+=======
+    const repository2 = new appointmentRepository_1.appointmentRepository();
+    const command = new createAppointmentCommand_1.createAppointmentCommand(repository2);
+    const editCommand = new editAppointmentCommand_1.editAppointmentCommand(repository2);
+    const getCommand = new getAppointmentsCommand_1.getAppointmentsCommand(repository2);
+    const deleteCommand = new deleteAppointmentCommand_1.deleteAppointmentCommand(repository2);
+    new MQTTController_1.MQTTController(command, editCommand, getCommand, deleteCommand).connect();
+>>>>>>> 7199129f506a600d4d10f9f7dd4fa7d39a349e03
 });

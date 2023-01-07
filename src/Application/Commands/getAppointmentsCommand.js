@@ -2,11 +2,14 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getAppointmentsCommand = void 0;
 class getAppointmentsCommand {
-    constructor(dentistryRepository) {
-        this.dentistryRepository = dentistryRepository;
+    constructor(appointmentRepository) {
+        this.appointmentRepository = appointmentRepository;
     }
     async getAllAppointments(dentistId) {
-        return await this.dentistryRepository.getAllAppointments(Number(dentistId));
+        return await this.appointmentRepository.getAllAppointments(Number(dentistId));
+    }
+    async getAppointmentsByUserId(userID) {
+        return await this.appointmentRepository.getAppointmentsByUserId(userID);
     }
 }
 exports.getAppointmentsCommand = getAppointmentsCommand;

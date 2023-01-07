@@ -40,18 +40,36 @@ export class MQTTController {
     constructor(private createAppointmentCommand: createAppointmentCommand, private editAppointmentCommand: editAppointmentCommand, private getAppointmentsCommand: getAppointmentsCommand,
         private deleteAppointmentCommand: deleteAppointmentCommand, private getUserQuery: getUserQuery){}
 
+<<<<<<< HEAD
         readonly options: IClientOptions = {
+=======
+        /*readonly options: IClientOptions = {
+>>>>>>> 7199129f506a600d4d10f9f7dd4fa7d39a349e03
             port: 8883,
             host: 'cb9fe4f292fe4099ae5eeb9f230c8346.s2.eu.hivemq.cloud',
             protocol: 'mqtts',
             username: 'T2Project',
+<<<<<<< HEAD
             password: 'Mamamia1234.',
             clientId: 'mqttjs_' + Math.random().toString(16).substring(2, 8)
         }
+=======
+            password: 'Mamamia1234.'
+        }
+        */
+        
+        
+        readonly client = mqtt.connect('mqtt://broker.hivemq.com',{
+            port: 1883,
+            username: 'T2Project',
+            password: 'Mamamia1234.',
+        });
+        
+>>>>>>> 7199129f506a600d4d10f9f7dd4fa7d39a349e03
 
     //readonly client = mqtt.connect('mqtt://broker.hivemq.com');
 
-    readonly client = mqtt.connect(this.options);
+    //readonly client = mqtt.connect(this.options);
     readonly mqtt_options = {qos: 1};
 
     readonly availabilityTopic = 'avaiability/#'
@@ -65,11 +83,17 @@ export class MQTTController {
     readonly editAvailabilityResponse = 'edit/availability/response'
     readonly editAvailabilityRequest = 'edit/availability/request'
     readonly getAppointmentsRequest = 'get/appointments/request'
+    readonly userAppointmentsResponse = 'user/appointments/response'
+    readonly userAppointmentsRequest = 'user/appointments/request'
     readonly getAppointmentsResponse = 'get/appointments/response'
     readonly deleteAppointmentRequest = 'delete/appointment/request'
     readonly deleteAppointmentResponse = 'delete/appointment/response'
+<<<<<<< HEAD
     readonly userInformationRequest = 'information/request'
     readonly userInformationResponse = 'information/response'
+=======
+    readonly deleteAllAppointments = 'delete/appointments/request'
+>>>>>>> 7199129f506a600d4d10f9f7dd4fa7d39a349e03
 
     
     user : IUser | null = {
@@ -102,10 +126,13 @@ export class MQTTController {
             this.client.subscribe(this.editRequest)
             this.client.subscribe(this.editAvailabilityResponse, {qos: 1})
             this.client.subscribe(this.availabilityResponse, {qos: 1})
+            this.client.subscribe(this.userAppointmentsRequest, {qos: 1});
+            this.client.subscribe(this.userAppointmentsResponse, {qos: 1});
             this.client.subscribe(this.getAppointmentsRequest, {qos: 1});
             this.client.subscribe(this.getAppointmentsResponse, {qos: 1});
             this.client.subscribe(this.deleteAppointmentRequest, {qos: 1});
             this.client.subscribe(this.deleteAppointmentResponse, {qos: 1});
+            this.client.subscribe(this.deleteAllAppointments, {qos: 1});
             console.log('Client has subscribed successfully')
             this.client.on('message', async (topic, message) => {
                 if (topic === this.appointmentRequest){
@@ -126,15 +153,27 @@ export class MQTTController {
                     const dentistryInfo = JSON.parse(message.toString());
                     console.log(dentistryInfo)
                     const appointments = await this.getAppointmentsCommand.getAllAppointments(dentistryInfo.dentistId)
-                    console.log(appointments);
                     this.client.publish(this.getAppointmentsResponse, JSON.stringify(appointments))
                 }
 
                 if(topic === this.getAppointmentsResponse) {
                     const appointments = JSON.parse(message.toString());
-                    console.log(appointments);
                 }
+<<<<<<< HEAD
 
+=======
+                if(topic === this.userAppointmentsRequest) {
+                    const request = JSON.parse(message.toString());
+                    console.log(request)
+                    const appointments = await this.getAppointmentsCommand.getAppointmentsByUserId(request.userId)
+                    console.log(appointments)
+                    this.client.publish(this.userAppointmentsResponse, JSON.stringify(appointments))
+                }
+                if(topic === this.userAppointmentsResponse) {
+                    const appointments = JSON.parse(message.toString());
+                    console.log(appointments)
+                }
+>>>>>>> 7199129f506a600d4d10f9f7dd4fa7d39a349e03
                 if (topic === this.availabilityResponse) {
                     let newAppointment = null;
                     let savedAppointment = null;
@@ -169,11 +208,20 @@ export class MQTTController {
                         }
                 }
                 if(topic === this.editRequest) {
+<<<<<<< HEAD
                   
                     this.editAppointment = JSON.parse(message.toString());
                     const response: JSON = <JSON><unknown>{
                         'dentistId': this.editAppointment.dentistId,
                         'date': this.editAppointment.editDate
+=======
+                    this.appointment = message.toString()
+                    console.log(this.appointment)
+                    const newMessage = JSON.parse(this.appointment);
+                    const response: JSON = <JSON><unknown>{
+                        'dentistId': newMessage.dentistId,
+                        'date': newMessage.editDate
+>>>>>>> 7199129f506a600d4d10f9f7dd4fa7d39a349e03
                     }
                     console.log(response)
                     this.client.publish(this.editAvailabilityRequest, JSON.stringify(response), {qos: 1});
@@ -223,11 +271,20 @@ export class MQTTController {
                             this.client.publish(this.editResponse, JSON.stringify(savedAppointment), {qos: 1});
                         }
                 }
+                if(topic === this.deleteAllAppointments) {
+                    const newMessage = JSON.parse(message.toString())
+                    const answer = await this.deleteAppointmentCommand.deleteAllAppointments(newMessage.dentistId)
+                    console.log(answer)
+                }
                 if(topic === this.deleteAppointmentRequest) {
                     const newAppointment  = JSON.parse(message.toString());
                     console.log("delete message ", newAppointment)
+<<<<<<< HEAD
                     const answer = await this.deleteAppointmentCommand.deleteAppointment(newAppointment.userId, newAppointment.dentistId, newAppointment.requestId, newAppointment.issuance, newAppointment.date)
                     const date = convertToLocalTime(newAppointment.date, 'sv-SE')
+=======
+                    const answer = await this.deleteAppointmentCommand.deleteAppointment(newAppointment.userId, newAppointment.dentistId, newAppointment.date)
+>>>>>>> 7199129f506a600d4d10f9f7dd4fa7d39a349e03
                     console.log(answer)
                     const response = <JSON><unknown> {
                         'response': answer
