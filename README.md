@@ -24,7 +24,7 @@ Appointment Handler module handles the appointments in the Dentistimo system. It
 - cd src/Infrastructure/Controllers
 - node Main
 ## Component Diagram
-![Component Diagram](Diagrams/component-diagram.png)
+![Component Diagram](Diagrams/appointmenthandler-diagram.png)
 
 <br>
 <br>
