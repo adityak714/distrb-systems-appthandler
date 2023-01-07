@@ -40,36 +40,25 @@ export class MQTTController {
     constructor(private createAppointmentCommand: createAppointmentCommand, private editAppointmentCommand: editAppointmentCommand, private getAppointmentsCommand: getAppointmentsCommand,
         private deleteAppointmentCommand: deleteAppointmentCommand, private getUserQuery: getUserQuery){}
 
-<<<<<<< HEAD
         readonly options: IClientOptions = {
-=======
-        /*readonly options: IClientOptions = {
->>>>>>> 7199129f506a600d4d10f9f7dd4fa7d39a349e03
             port: 8883,
             host: 'cb9fe4f292fe4099ae5eeb9f230c8346.s2.eu.hivemq.cloud',
             protocol: 'mqtts',
             username: 'T2Project',
-<<<<<<< HEAD
-            password: 'Mamamia1234.',
-            clientId: 'mqttjs_' + Math.random().toString(16).substring(2, 8)
-        }
-=======
             password: 'Mamamia1234.'
         }
-        */
         
-        
+        /*
         readonly client = mqtt.connect('mqtt://broker.hivemq.com',{
             port: 1883,
             username: 'T2Project',
             password: 'Mamamia1234.',
         });
-        
->>>>>>> 7199129f506a600d4d10f9f7dd4fa7d39a349e03
+        */
 
     //readonly client = mqtt.connect('mqtt://broker.hivemq.com');
 
-    //readonly client = mqtt.connect(this.options);
+    readonly client = mqtt.connect(this.options);
     readonly mqtt_options = {qos: 1};
 
     readonly availabilityTopic = 'avaiability/#'
@@ -88,21 +77,8 @@ export class MQTTController {
     readonly getAppointmentsResponse = 'get/appointments/response'
     readonly deleteAppointmentRequest = 'delete/appointment/request'
     readonly deleteAppointmentResponse = 'delete/appointment/response'
-<<<<<<< HEAD
-    readonly userInformationRequest = 'information/request'
-    readonly userInformationResponse = 'information/response'
-=======
     readonly deleteAllAppointments = 'delete/appointments/request'
->>>>>>> 7199129f506a600d4d10f9f7dd4fa7d39a349e03
-
     
-    user : IUser | null = {
-        jwtToken: '',
-        name: '',
-        email: '',
-        password: ''
-
-    }
     editAppointment : IEditAppointment = {
         userId: '',
         dentistId: '',
@@ -117,6 +93,12 @@ export class MQTTController {
         requestId: '',
         issuance: '',
         date: '',
+    }
+    user : IUser | null = {
+        jwtToken: '',
+        name: '',
+        email: '',
+        password: ''
     }
     
     public connect() {
@@ -139,16 +121,13 @@ export class MQTTController {
                     this.appointment = JSON.parse(message.toString());
                     console.log(this.appointment)
                     this.user = await this.getUserQuery.getUser(this.appointment.userId)
-                    console.log(this.user)
                     const response: JSON = <JSON><unknown>{
                         'dentistId': this.appointment.dentistId,
                         'date': this.appointment.date
                     }
+                    console.log(response)
                     this.client.publish(this.availabilityRequest, JSON.stringify(response), {qos: 1});
-
-                    }
-
-
+                }
                 if(topic === this.getAppointmentsRequest) {
                     const dentistryInfo = JSON.parse(message.toString());
                     console.log(dentistryInfo)
@@ -159,9 +138,6 @@ export class MQTTController {
                 if(topic === this.getAppointmentsResponse) {
                     const appointments = JSON.parse(message.toString());
                 }
-<<<<<<< HEAD
-
-=======
                 if(topic === this.userAppointmentsRequest) {
                     const request = JSON.parse(message.toString());
                     console.log(request)
@@ -173,7 +149,6 @@ export class MQTTController {
                     const appointments = JSON.parse(message.toString());
                     console.log(appointments)
                 }
->>>>>>> 7199129f506a600d4d10f9f7dd4fa7d39a349e03
                 if (topic === this.availabilityResponse) {
                     let newAppointment = null;
                     let savedAppointment = null;
@@ -183,15 +158,16 @@ export class MQTTController {
                     console.log(answer)
                     switch(answer) {
                         case 'yes':
-                            this.createAppointmentCommand.createAppointment(this.appointment.userId, this.appointment.dentistId, this.appointment.requestId, this.appointment.issuance, this.appointment.date);
-                            const date = convertToLocalTime(new Date (this.appointment.date), 'sv-SE')
+                            const newAppointment = this.appointment;
+                            this.createAppointmentCommand.createAppointment(newAppointment.userId, newAppointment.dentistId, newAppointment.requestId, newAppointment.issuance, newAppointment.date);
+                            const date = convertToLocalTime(new Date(newAppointment.date), 'sv-SE')
                             savedAppointment = <JSON><unknown> {
-                                'userId': this.appointment.userId,
-                                'requestId': this.appointment.requestId,
+                                'userId': newAppointment.userId,
+                                'requestId': newAppointment.requestId,
                                 'date': date
                             }
                             console.log(savedAppointment)
-                            await mailBookingConfirmation(this.user!.name, this.user!.email, this.appointment.dentistId, date).catch((err) => {
+                            await mailBookingConfirmation(this.user!.name, this.user!.email, newAppointment.dentistId, newAppointment.date).catch((err) => {
                                 console.log(err)
                             })
                             this.client.publish(this.appointmentResponse, JSON.stringify(savedAppointment), {qos: 1});
@@ -204,68 +180,55 @@ export class MQTTController {
                             }
                             console.log(savedAppointment)
                             this.client.publish(this.appointmentResponse, JSON.stringify(savedAppointment), {qos: 1});
-                            break;
                         }
                 }
                 if(topic === this.editRequest) {
-<<<<<<< HEAD
-                  
-                    this.editAppointment = JSON.parse(message.toString());
+                    this.editAppointment = JSON.parse(message.toString())
+                    console.log(this.editAppointment)
                     const response: JSON = <JSON><unknown>{
                         'dentistId': this.editAppointment.dentistId,
                         'date': this.editAppointment.editDate
-=======
-                    this.appointment = message.toString()
-                    console.log(this.appointment)
-                    const newMessage = JSON.parse(this.appointment);
-                    const response: JSON = <JSON><unknown>{
-                        'dentistId': newMessage.dentistId,
-                        'date': newMessage.editDate
->>>>>>> 7199129f506a600d4d10f9f7dd4fa7d39a349e03
                     }
                     console.log(response)
                     this.client.publish(this.editAvailabilityRequest, JSON.stringify(response), {qos: 1});
                 }
                 if(topic === this.editAvailabilityResponse) {
+                    let newAppointment = null;
                     let savedAppointment = null;
                     const firstAnswer = JSON.parse(message.toString())
                     console.log(firstAnswer)
                     const answer = firstAnswer.response
+                    console.log(answer)
                     switch(answer) {
                         case 'yes':
-                            
-                            const updatedStatus = await this.editAppointmentCommand.editAppointment(this.editAppointment.userId, this.editAppointment.dentistId, this.editAppointment.requestId, this.editAppointment.issuance, this.editAppointment.date, this.editAppointment.editDate);
-                            const date = convertToLocalTime(new Date(this.editAppointment.editDate), 'sv-SE')
+                            newAppointment = this.editAppointment;
+                            const updatedStatus = await this.editAppointmentCommand.editAppointment(newAppointment.userId, newAppointment.dentistId, newAppointment.requestId, newAppointment.issuance, newAppointment.date, newAppointment.editDate);
+                            const date = convertToLocalTime(new Date(newAppointment.editDate), 'sv-SE')
                             console.log(updatedStatus)
                             if(updatedStatus === 'updated') {
                                 savedAppointment = <JSON><unknown> {
-                                    'userId': this.editAppointment.userId,
-                                    'requestId': this.editAppointment.requestId,
+                                    'userId': newAppointment.userId,
+                                    'requestId': newAppointment.requestId,
                                     'date': date,
                                     'status': 'edited'
                                 }
-                                await mailBookingChange(this.user!.email,this.editAppointment.dentistId, date, this.user!.name).catch((err) => {
-                                    console.log(err)
-                                })
                             }else {
                                 savedAppointment = <JSON><unknown> {
-                                    'userId':this.editAppointment.userId,
-                                    'requestId':this.editAppointment.requestId,
+                                    'userId': newAppointment.userId,
+                                    'requestId': newAppointment.requestId,
                                     'date': 'none',
-                                    'status': 'not edited'
                                 }
                             }
-                           
                             console.log(savedAppointment)
-                            
                             this.client.publish(this.editResponse, JSON.stringify(savedAppointment), {qos: 1});
                             break;
                         case 'no':
+                            newAppointment = this.editAppointment;
+                            console.log(newAppointment)
                             savedAppointment = <JSON><unknown> {
-                                'userId': this.editAppointment.userId,
-                                'requestId':this.editAppointment.requestId,
+                                'userId': newAppointment.userId,
+                                'requestId': newAppointment.requestId,
                                 'date': 'none',
-                                'status' : 'not edited'
                             }
                             console.log(savedAppointment)
                             this.client.publish(this.editResponse, JSON.stringify(savedAppointment), {qos: 1});
@@ -279,17 +242,12 @@ export class MQTTController {
                 if(topic === this.deleteAppointmentRequest) {
                     const newAppointment  = JSON.parse(message.toString());
                     console.log("delete message ", newAppointment)
-<<<<<<< HEAD
-                    const answer = await this.deleteAppointmentCommand.deleteAppointment(newAppointment.userId, newAppointment.dentistId, newAppointment.requestId, newAppointment.issuance, newAppointment.date)
-                    const date = convertToLocalTime(newAppointment.date, 'sv-SE')
-=======
                     const answer = await this.deleteAppointmentCommand.deleteAppointment(newAppointment.userId, newAppointment.dentistId, newAppointment.date)
->>>>>>> 7199129f506a600d4d10f9f7dd4fa7d39a349e03
                     console.log(answer)
                     const response = <JSON><unknown> {
                         'response': answer
                     }
-                    await mailBookingDeletion(this.user!.email, newAppointment.dentistId, date, this.user!.name).catch((err) => {
+                    await mailBookingDeletion(this.user!.email, newAppointment.dentistId, newAppointment.date, this.user!.name).catch((err) => {
                         console.log(err)
                     })
                     this.client.publish(this.deleteAppointmentResponse, JSON.stringify(response), {qos: 1})
