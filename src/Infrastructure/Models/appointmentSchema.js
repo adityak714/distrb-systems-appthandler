@@ -27,16 +27,10 @@ const mongoose_1 = __importStar(require("mongoose"));
 const appointmentSchema = new mongoose_1.Schema({
     userId: { type: String },
     dentistId: { type: Number },
-<<<<<<< HEAD
-    requestId: { type: Number },
-    issuance: { type: Number },
-    date: { type: Date },
-=======
     requestId: { type: String },
     issuance: { type: String },
     date: {
         type: Date,
     },
->>>>>>> 7199129f506a600d4d10f9f7dd4fa7d39a349e03
 });
 exports.default = mongoose_1.default.model('Appointment', appointmentSchema);
