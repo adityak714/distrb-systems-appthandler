@@ -79,5 +79,25 @@ class appointmentRepository {
         });
         return deletedStatus;
     }
+    async getAppointmentsByUserId(userID) {
+        let allAppointments = [];
+        var filter = { userId: userID };
+        await appointmentSchema_1.default.find(filter).then(appointments => {
+            for (let i = 0; i < appointments.length; i++) {
+                const newDate = (0, dateUtils_1.convertToLocalTime)(appointments[i].date, 'sv-SE');
+                console_1.default.log(newDate);
+                let appointment = {
+                    '_id': appointments[i].id,
+                    'userId': appointments[i].userId,
+                    'dentistId': appointments[i].dentistId,
+                    'requestId': appointments[i].requestId,
+                    'issuance': appointments[i].issuance,
+                    'date': newDate
+                };
+                allAppointments.push(appointment);
+            }
+        });
+        return allAppointments;
+    }
 }
 exports.appointmentRepository = appointmentRepository;

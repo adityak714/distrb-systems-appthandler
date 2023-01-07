@@ -14,17 +14,26 @@ export class MQTTController {
     constructor(private createAppointmentCommand: createAppointmentCommand, private editAppointmentCommand: editAppointmentCommand, private getAppointmentsCommand: getAppointmentsCommand,
         private deleteAppointmentCommand: deleteAppointmentCommand){}
 
-        readonly options: IClientOptions = {
+        /*readonly options: IClientOptions = {
             port: 8883,
             host: 'cb9fe4f292fe4099ae5eeb9f230c8346.s2.eu.hivemq.cloud',
             protocol: 'mqtts',
             username: 'T2Project',
             password: 'Mamamia1234.'
         }
+        */
+        
+        
+        readonly client = mqtt.connect('mqtt://broker.hivemq.com',{
+            port: 1883,
+            username: 'T2Project',
+            password: 'Mamamia1234.',
+        });
+        
 
     //readonly client = mqtt.connect('mqtt://broker.hivemq.com');
 
-    readonly client = mqtt.connect(this.options);
+    //readonly client = mqtt.connect(this.options);
     readonly mqtt_options = {qos: 1};
 
     readonly availabilityTopic = 'avaiability/#'
@@ -38,6 +47,8 @@ export class MQTTController {
     readonly editAvailabilityResponse = 'edit/availability/response'
     readonly editAvailabilityRequest = 'edit/availability/request'
     readonly getAppointmentsRequest = 'get/appointments/request'
+    readonly userAppointmentsResponse = 'user/appointments/response'
+    readonly userAppointmentsRequest = 'user/appointments/request'
     readonly getAppointmentsResponse = 'get/appointments/response'
     readonly deleteAppointmentRequest = 'delete/appointment/request'
     readonly deleteAppointmentResponse = 'delete/appointment/response'
@@ -51,6 +62,8 @@ export class MQTTController {
             this.client.subscribe(this.editRequest)
             this.client.subscribe(this.editAvailabilityResponse, {qos: 1})
             this.client.subscribe(this.availabilityResponse, {qos: 1})
+            this.client.subscribe(this.userAppointmentsRequest, {qos: 1});
+            this.client.subscribe(this.userAppointmentsResponse, {qos: 1});
             this.client.subscribe(this.getAppointmentsRequest, {qos: 1});
             this.client.subscribe(this.getAppointmentsResponse, {qos: 1});
             this.client.subscribe(this.deleteAppointmentRequest, {qos: 1});
@@ -78,7 +91,18 @@ export class MQTTController {
                 if(topic === this.getAppointmentsResponse) {
                     const appointments = JSON.parse(message.toString());
                 }
-                 if (topic === this.availabilityResponse) {
+                if(topic === this.userAppointmentsRequest) {
+                    const request = JSON.parse(message.toString());
+                    console.log(request)
+                    const appointments = await this.getAppointmentsCommand.getAppointmentsByUserId(request.userId)
+                    console.log(appointments)
+                    this.client.publish(this.userAppointmentsResponse, JSON.stringify(appointments))
+                }
+                if(topic === this.userAppointmentsResponse) {
+                    const appointments = JSON.parse(message.toString());
+                    console.log(appointments)
+                }
+                if (topic === this.availabilityResponse) {
                     let newAppointment = null;
                     let savedAppointment = null;
                     const firstAnswer = JSON.parse(message.toString())

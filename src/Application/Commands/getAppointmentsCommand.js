@@ -8,5 +8,8 @@ class getAppointmentsCommand {
     async getAllAppointments(dentistId) {
         return await this.appointmentRepository.getAllAppointments(Number(dentistId));
     }
+    async getAppointmentsByUserId(userID) {
+        return await this.appointmentRepository.getAppointmentsByUserId(userID);
+    }
 }
 exports.getAppointmentsCommand = getAppointmentsCommand;
