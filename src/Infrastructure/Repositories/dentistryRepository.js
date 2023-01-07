@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.dentistryRepository = void 0;
-const dentistries_json_1 = __importDefault(require("../Files/dentistries.json"));
+const dentistries_json_1 = __importDefault(require("../../Files/dentistries.json"));
 const dentistrySchema_1 = __importDefault(require("../Models/dentistrySchema"));
 class dentistryRepository {
     async createDentistries() {

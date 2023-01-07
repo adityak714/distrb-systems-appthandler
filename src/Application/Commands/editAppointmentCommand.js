@@ -1,18 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createAppointmentCommand = void 0;
+exports.editAppointmentCommand = void 0;
 /* eslint-disable prettier/prettier */
 const Appointment_1 = require("../../Domain/Entities/Appointment");
-class createAppointmentCommand {
+class editAppointmentCommand {
     constructor(appointmentRepository) {
         this.appointmentRepository = appointmentRepository;
     }
-    async createAppointment(userId, dentistId, requestId, issuance, date) {
-        console.log(date);
+    async editAppointment(userId, dentistId, requestId, issuance, date, newDate) {
         //Generating UTC0 since it is the international date stored in the database
         const newAppointment = new Appointment_1.Appointment(String(userId), Number(dentistId), String(requestId), String(issuance), new Date(date));
-        console.log(newAppointment.date);
-        await this.appointmentRepository.registerAppointment(newAppointment);
+        return await this.appointmentRepository.updateAppointment(newAppointment, new Date(newDate));
     }
 }
-exports.createAppointmentCommand = createAppointmentCommand;
+exports.editAppointmentCommand = editAppointmentCommand;

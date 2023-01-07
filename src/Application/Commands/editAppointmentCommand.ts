@@ -2,14 +2,13 @@
 import {Appointment} from '../../Domain/Entities/Appointment';
 import { IAppointmentRepository } from '../../Domain/Intefaces/IAppointmentRepository';
 
-export class createAppointmentCommand {
+
+export class editAppointmentCommand {
   constructor(private readonly appointmentRepository: IAppointmentRepository) {}
 
-  public async createAppointment(userId: string, dentistId: string, requestId: string,issuance: string, date: string) {
-    console.log(date)
+  public async editAppointment(userId: string, dentistId: string, requestId: string,issuance: string, date: string, newDate:string) {
     //Generating UTC0 since it is the international date stored in the database
     const newAppointment = new Appointment(String(userId), Number(dentistId), String(requestId), String(issuance), new Date(date));
-    console.log(newAppointment.date)
-    await this.appointmentRepository.registerAppointment(newAppointment);
+    return await this.appointmentRepository.updateAppointment(newAppointment, new Date (newDate));
   }
 }
