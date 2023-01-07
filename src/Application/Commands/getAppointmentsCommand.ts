@@ -6,4 +6,7 @@ export class getAppointmentsCommand {
   public async getAllAppointments(dentistId: string) : Promise<any[]> {
     return await this.appointmentRepository.getAllAppointments(Number(dentistId));
   }
+  public async getAppointmentsByUserId(userID: string) {
+    return await this.appointmentRepository.getAppointmentsByUserId(userID);
+  }
 }
