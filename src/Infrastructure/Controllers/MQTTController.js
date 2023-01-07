@@ -8,17 +8,28 @@ exports.MQTTController = void 0;
 /* eslint-disable prettier/prettier */
 const mqtt_1 = __importDefault(require("mqtt"));
 const dateUtils_1 = require("../../Domain/Utils/dateUtils");
+const emailService_1 = require("../Notifications/emailService");
 class MQTTController {
-    constructor(createAppointmentCommand, editAppointmentCommand, getAppointmentsCommand, deleteAppointmentCommand) {
+    constructor(createAppointmentCommand, editAppointmentCommand, getAppointmentsCommand, deleteAppointmentCommand, getUserQuery) {
         this.createAppointmentCommand = createAppointmentCommand;
         this.editAppointmentCommand = editAppointmentCommand;
         this.getAppointmentsCommand = getAppointmentsCommand;
         this.deleteAppointmentCommand = deleteAppointmentCommand;
+<<<<<<< HEAD
+        this.getUserQuery = getUserQuery;
+        this.options = {
+=======
         /*readonly options: IClientOptions = {
+>>>>>>> 7199129f506a600d4d10f9f7dd4fa7d39a349e03
             port: 8883,
             host: 'cb9fe4f292fe4099ae5eeb9f230c8346.s2.eu.hivemq.cloud',
             protocol: 'mqtts',
             username: 'T2Project',
+<<<<<<< HEAD
+            password: 'Mamamia1234.',
+            clientId: 'mqttjs_' + Math.random().toString(16).substring(2, 8)
+        };
+=======
             password: 'Mamamia1234.'
         }
         */
@@ -27,6 +38,7 @@ class MQTTController {
             username: 'T2Project',
             password: 'Mamamia1234.',
         });
+>>>>>>> 7199129f506a600d4d10f9f7dd4fa7d39a349e03
         //readonly client = mqtt.connect('mqtt://broker.hivemq.com');
         //readonly client = mqtt.connect(this.options);
         this.mqtt_options = { qos: 1 };
@@ -46,8 +58,34 @@ class MQTTController {
         this.getAppointmentsResponse = 'get/appointments/response';
         this.deleteAppointmentRequest = 'delete/appointment/request';
         this.deleteAppointmentResponse = 'delete/appointment/response';
+<<<<<<< HEAD
+        this.userInformationRequest = 'information/request';
+        this.userInformationResponse = 'information/response';
+        this.user = {
+            jwtToken: '',
+            name: '',
+            email: '',
+            password: ''
+        };
+        this.editAppointment = {
+            userId: '',
+            dentistId: '',
+            requestId: '',
+            issuance: '',
+            date: '',
+            editDate: ''
+        };
+        this.appointment = {
+            userId: '',
+            dentistId: '',
+            requestId: '',
+            issuance: '',
+            date: '',
+        };
+=======
         this.deleteAllAppointments = 'delete/appointments/request';
         this.appointment = '';
+>>>>>>> 7199129f506a600d4d10f9f7dd4fa7d39a349e03
     }
     connect() {
         this.client.on('connect', () => {
@@ -66,14 +104,14 @@ class MQTTController {
             console.log('Client has subscribed successfully');
             this.client.on('message', async (topic, message) => {
                 if (topic === this.appointmentRequest) {
-                    this.appointment = message.toString();
+                    this.appointment = JSON.parse(message.toString());
                     console.log(this.appointment);
-                    const newMessage = JSON.parse(this.appointment);
+                    this.user = await this.getUserQuery.getUser(this.appointment.userId);
+                    console.log(this.user);
                     const response = {
-                        'dentistId': newMessage.dentistId,
-                        'date': newMessage.date
+                        'dentistId': this.appointment.dentistId,
+                        'date': this.appointment.date
                     };
-                    console.log(response);
                     this.client.publish(this.availabilityRequest, JSON.stringify(response), { qos: 1 });
                 }
                 if (topic === this.getAppointmentsRequest) {
@@ -105,84 +143,90 @@ class MQTTController {
                     console.log(answer);
                     switch (answer) {
                         case 'yes':
-                            newAppointment = JSON.parse(this.appointment);
-                            this.createAppointmentCommand.createAppointment(newAppointment.userId, newAppointment.dentistId, newAppointment.requestId, newAppointment.issuance, newAppointment.date);
-                            const date = (0, dateUtils_1.convertToLocalTime)(newAppointment.date, 'sv-SE');
+                            this.createAppointmentCommand.createAppointment(this.appointment.userId, this.appointment.dentistId, this.appointment.requestId, this.appointment.issuance, this.appointment.date);
+                            const date = (0, dateUtils_1.convertToLocalTime)(new Date(this.appointment.date), 'sv-SE');
                             savedAppointment = {
-                                'userId': newAppointment.userId,
-                                'requestId': newAppointment.requestId,
+                                'userId': this.appointment.userId,
+                                'requestId': this.appointment.requestId,
                                 'date': date
                             };
                             console.log(savedAppointment);
+                            await (0, emailService_1.mailBookingConfirmation)(this.user.name, this.user.email, this.appointment.dentistId, date).catch((err) => {
+                                console.log(err);
+                            });
                             this.client.publish(this.appointmentResponse, JSON.stringify(savedAppointment), { qos: 1 });
                             break;
                         case 'no':
-                            newAppointment = JSON.parse(this.appointment);
-                            console.log(newAppointment);
                             savedAppointment = {
-                                'userId': newAppointment.userId,
-                                'requestId': newAppointment.requestId,
+                                'userId': this.appointment.userId,
+                                'requestId': this.appointment.requestId,
                                 'date': 'none'
                             };
                             console.log(savedAppointment);
                             this.client.publish(this.appointmentResponse, JSON.stringify(savedAppointment), { qos: 1 });
+                            break;
                     }
-                    this.appointment = '';
                 }
                 if (topic === this.editRequest) {
+<<<<<<< HEAD
+                    this.editAppointment = JSON.parse(message.toString());
+                    const response = {
+                        'dentistId': this.editAppointment.dentistId,
+                        'date': this.editAppointment.editDate
+=======
                     this.appointment = message.toString();
                     console.log(this.appointment);
                     const newMessage = JSON.parse(this.appointment);
                     const response = {
                         'dentistId': newMessage.dentistId,
                         'date': newMessage.editDate
+>>>>>>> 7199129f506a600d4d10f9f7dd4fa7d39a349e03
                     };
                     console.log(response);
                     this.client.publish(this.editAvailabilityRequest, JSON.stringify(response), { qos: 1 });
                 }
                 if (topic === this.editAvailabilityResponse) {
-                    let newAppointment = null;
                     let savedAppointment = null;
                     const firstAnswer = JSON.parse(message.toString());
                     console.log(firstAnswer);
                     const answer = firstAnswer.response;
-                    console.log(answer);
                     switch (answer) {
                         case 'yes':
-                            newAppointment = JSON.parse(this.appointment);
-                            const updatedStatus = await this.editAppointmentCommand.editAppointment(newAppointment.userId, newAppointment.dentistId, newAppointment.requestId, newAppointment.issuance, newAppointment.date, newAppointment.editDate);
-                            const date = (0, dateUtils_1.convertToLocalTime)(newAppointment.editDate, 'sv-SE');
+                            const updatedStatus = await this.editAppointmentCommand.editAppointment(this.editAppointment.userId, this.editAppointment.dentistId, this.editAppointment.requestId, this.editAppointment.issuance, this.editAppointment.date, this.editAppointment.editDate);
+                            const date = (0, dateUtils_1.convertToLocalTime)(new Date(this.editAppointment.editDate), 'sv-SE');
                             console.log(updatedStatus);
                             if (updatedStatus === 'updated') {
                                 savedAppointment = {
-                                    'userId': newAppointment.userId,
-                                    'requestId': newAppointment.requestId,
+                                    'userId': this.editAppointment.userId,
+                                    'requestId': this.editAppointment.requestId,
                                     'date': date,
                                     'status': 'edited'
                                 };
+                                await (0, emailService_1.mailBookingChange)(this.user.email, this.editAppointment.dentistId, date, this.user.name).catch((err) => {
+                                    console.log(err);
+                                });
                             }
                             else {
                                 savedAppointment = {
-                                    'userId': newAppointment.userId,
-                                    'requestId': newAppointment.requestId,
+                                    'userId': this.editAppointment.userId,
+                                    'requestId': this.editAppointment.requestId,
                                     'date': 'none',
+                                    'status': 'not edited'
                                 };
                             }
                             console.log(savedAppointment);
                             this.client.publish(this.editResponse, JSON.stringify(savedAppointment), { qos: 1 });
                             break;
                         case 'no':
-                            newAppointment = JSON.parse(this.appointment);
-                            console.log(newAppointment);
                             savedAppointment = {
-                                'userId': newAppointment.userId,
-                                'requestId': newAppointment.requestId,
+                                'userId': this.editAppointment.userId,
+                                'requestId': this.editAppointment.requestId,
                                 'date': 'none',
+                                'status': 'not edited'
                             };
                             console.log(savedAppointment);
                             this.client.publish(this.editResponse, JSON.stringify(savedAppointment), { qos: 1 });
                     }
-                    this.appointment = '';
                 }
                 if (topic === this.deleteAllAppointments) {
                     const newMessage = JSON.parse(message.toString());
@@ -192,11 +236,19 @@ class MQTTController {
                 if (topic === this.deleteAppointmentRequest) {
                     const newAppointment = JSON.parse(message.toString());
                     console.log("delete message ", newAppointment);
+<<<<<<< HEAD
+                    const answer = await this.deleteAppointmentCommand.deleteAppointment(newAppointment.userId, newAppointment.dentistId, newAppointment.requestId, newAppointment.issuance, newAppointment.date);
+                    const date = (0, dateUtils_1.convertToLocalTime)(newAppointment.date, 'sv-SE');
+=======
                     const answer = await this.deleteAppointmentCommand.deleteAppointment(newAppointment.userId, newAppointment.dentistId, newAppointment.date);
+>>>>>>> 7199129f506a600d4d10f9f7dd4fa7d39a349e03
                     console.log(answer);
                     const response = {
                         'response': answer
                     };
+                    await (0, emailService_1.mailBookingDeletion)(this.user.email, newAppointment.dentistId, date, this.user.name).catch((err) => {
+                        console.log(err);
+                    });
                     this.client.publish(this.deleteAppointmentResponse, JSON.stringify(response), { qos: 1 });
                 }
                 if (topic === this.deleteAppointmentResponse) {
