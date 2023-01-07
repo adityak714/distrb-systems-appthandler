@@ -26,11 +26,15 @@
   },
   "dependencies": {
     "@types/mongoose": "^5.11.97",
+    "@types/nodemailer": "^6.4.6",
     "@types/paho-mqtt": "^1.0.6",
     "dotenv": "^16.0.3",
+    "fs": "^0.0.1-security",
+    "handlebars": "^4.7.7",
     "mongodb": "^4.11.0",
     "mongoose": "^6.7.2",
     "mqtt": "^4.3.7",
+    "nodemailer": "^6.8.0",
     "paho-mqtt": "^1.1.0"
   }
 }
