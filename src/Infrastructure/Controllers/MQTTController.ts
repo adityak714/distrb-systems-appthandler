@@ -1,6 +1,6 @@
 /* eslint-disable no-case-declarations */
 /* eslint-disable prettier/prettier */
-import mqtt, { IClientOptions } from 'mqtt'
+import mqtt, {IClientOptions} from 'mqtt'
 import { createAppointmentCommand } from '../../Application/Commands/createAppointmentCommand';
 import { editAppointmentCommand } from '../../Application/Commands/editAppointmentCommand';
 import { getAppointmentsCommand } from '../../Application/Commands/getAppointmentsCommand';
