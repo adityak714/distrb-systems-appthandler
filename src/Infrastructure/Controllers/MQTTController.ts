@@ -113,7 +113,7 @@ export class MQTTController {
                         
                         console.log(dentistryInfo)
                         const appointments = await getAppointmentsBreaker.fire(dentistryInfo.dentistId)
-                        if(!getAppointmentsBreaker.opened) {
+                        if(getAppointmentsBreaker.closed) {
                             this.client.publish(this.getAppointmentsResponse, JSON.stringify(appointments))
                         }
                         
@@ -146,7 +146,7 @@ export class MQTTController {
                         console.log(request)
                         const appointments = await userAppointmentBreaker.fire(request.userId)
                         console.log(appointments)
-                        if(!userAppointmentBreaker.opened) {
+                        if(userAppointmentBreaker.closed) {
                             this.client.publish(this.userAppointmentsResponse, JSON.stringify(appointments))
                         }
                         
@@ -195,7 +195,7 @@ export class MQTTController {
                                         'date': date
                                     }
                                     console.log(savedAppointment)
-                                    if(!createAppointmentBreaker.opened) {
+                                    if(createAppointmentBreaker.closed) {
                                         this.client.publish(this.appointmentResponse, JSON.stringify(savedAppointment), {qos: 1});
                                     }
                             
@@ -314,7 +314,7 @@ export class MQTTController {
                         const response = <JSON><unknown> {
                             'response': answer
                         }
-                        if(!deleteAppointmentBreaker.opened) {
+                        if(deleteAppointmentBreaker.closed) {
                             this.client.publish(this.deleteAppointmentResponse, JSON.stringify(response), {qos: 1})
                         }
                         
