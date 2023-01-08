@@ -26,11 +26,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const appointmentSchema = new mongoose_1.Schema({
     userId: { type: String },
-    dentistId: { type: Number },
+    dentistId: { type: Number, unique: true },
     requestId: { type: String },
-    issuance: { type: String },
+    issuance: { type: String, unique: true },
     date: {
         type: Date,
+        unique: true,
     },
 });
 exports.default = mongoose_1.default.model('Appointment', appointmentSchema);

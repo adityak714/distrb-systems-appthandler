@@ -7,7 +7,6 @@ exports.mailBookingDeletion = exports.mailBookingChange = exports.mailBookingCon
 /* eslint-disable prettier/prettier */
 const dentistries_json_1 = __importDefault(require("../../Files/dentistries.json"));
 const nodemailer_1 = __importDefault(require("nodemailer"));
-// const nodemailer = require('nodemailer'):
 // Booking confirmation email, sent when a user books an appointment.
 async function mailBookingConfirmation(name, recipient, dentistry, date) {
     var _a;
@@ -28,7 +27,7 @@ async function mailBookingConfirmation(name, recipient, dentistry, date) {
         to: recipient,
         subject: 'Your Booking Confirmation',
         text: '',
-        html: '<body style="margin: auto; width: 75%; display: flex; flex-direction: column; border: 1.5px solid #79c2d0; padding: 20px;">' +
+        html: '<body style="margin: auto; width: 75%; border: 1.5px solid #79c2d0; padding: 20px;">' +
             '<img src="cid:mailLogo" alt="Logo" style="border-radius: 30px; height: 50px; width: 130px;"/><h1 style="color:green;text-align:center;">  Hello ' + name + '! </h1> <br>' +
             '<div1 style="font-size: 28px; padding: 35px;"> Thank you for booking an appointment with <b>Dentistimo</b>! <br>' +
             'Here are your booking details: <br> </div1>' +

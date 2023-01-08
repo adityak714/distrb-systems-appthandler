@@ -11,8 +11,8 @@ const appointmentRepository_1 = require("../Repositories/appointmentRepository")
 const MQTTController_1 = require("./MQTTController");
 const mongoose_1 = __importDefault(require("mongoose"));
 const dentistryRepository_1 = require("../Repositories/dentistryRepository");
-const userRepository_1 = require("../Repositories/userRepository");
 const deleteAppointmentCommand_1 = require("../../Application/Commands/deleteAppointmentCommand");
+const userRepository_1 = require("../Repositories/userRepository");
 const getUserQuery_1 = require("../../Application/Queries/getUserQuery");
 /*
 mongoose.connect(
@@ -20,12 +20,12 @@ mongoose.connect(
 );
 */
 mongoose_1.default.connect('mongodb+srv://gusreinaos:4MNbebz6E04hq5IV@cluster0.x1srwma.mongodb.net/test');
-const dentistryrepository = new dentistryRepository_1.dentistryRepository();
-const userRepository = new userRepository_1.UserRepository();
-dentistryrepository.createDentistries().then(object => {
-    new createDentistriesCommand_1.createDentistriesCommand(dentistryrepository);
+const repository1 = new dentistryRepository_1.dentistryRepository();
+repository1.createDentistries().then(object => {
+    new createDentistriesCommand_1.createDentistriesCommand(repository1);
     console.log('dentists created');
     const appointmentrepository = new appointmentRepository_1.appointmentRepository();
+    const userRepository = new userRepository_1.UserRepository();
     const command = new createAppointmentCommand_1.createAppointmentCommand(appointmentrepository);
     const editCommand = new editAppointmentCommand_1.editAppointmentCommand(appointmentrepository);
     const getCommand = new getAppointmentsCommand_1.getAppointmentsCommand(appointmentrepository);

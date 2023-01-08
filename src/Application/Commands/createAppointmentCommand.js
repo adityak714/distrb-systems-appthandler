@@ -8,10 +8,8 @@ class createAppointmentCommand {
         this.appointmentRepository = appointmentRepository;
     }
     async createAppointment(userId, dentistId, requestId, issuance, date) {
-        console.log(date);
-        //Generating UTC0 since it is the international date stored in the database
+        console.log('accessed');
         const newAppointment = new Appointment_1.Appointment(String(userId), Number(dentistId), String(requestId), String(issuance), new Date(date));
-        console.log(newAppointment.date);
         await this.appointmentRepository.registerAppointment(newAppointment);
     }
 }
