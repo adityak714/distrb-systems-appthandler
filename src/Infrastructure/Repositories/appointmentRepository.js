@@ -44,19 +44,17 @@ class appointmentRepository {
         await appointmentSchema_1.default.findOneAndDelete(filter).then((appointment) => {
             if (appointment !== null) {
                 deletedStatus = 'yes';
-                console_1.default.log(appointment);
             }
         });
         return deletedStatus;
     }
     async getAllAppointments(dentistIdNumber) {
-        let allAppointments = [];
-        var filter = { dentistId: dentistIdNumber };
+        const allAppointments = [];
+        const filter = { dentistId: dentistIdNumber };
         await appointmentSchema_1.default.find(filter).sort({ Date: -1 }).then(appointments => {
             for (let i = 0; i < appointments.length; i++) {
                 const newDate = (0, dateUtils_1.convertToLocalTime)(appointments[i].date, 'sv-SE');
-                console_1.default.log(newDate);
-                let appointment = {
+                const appointment = {
                     '_id': appointments[i].id,
                     'userId': appointments[i].userId,
                     'dentistId': appointments[i].dentistId,
@@ -71,7 +69,7 @@ class appointmentRepository {
     }
     async deleteAllAppointments(dentistIdNumber) {
         let deletedStatus = 'no';
-        var filter = { dentistId: dentistIdNumber };
+        const filter = { dentistId: dentistIdNumber };
         await appointmentSchema_1.default.deleteMany(filter).then(appointments => {
             if (appointments !== null) {
                 deletedStatus = 'yes';
@@ -80,13 +78,13 @@ class appointmentRepository {
         return deletedStatus;
     }
     async getAppointmentsByUserId(userID) {
-        let allAppointments = [];
-        var filter = { userId: userID };
+        const allAppointments = [];
+        const filter = { userId: userID };
         await appointmentSchema_1.default.find(filter).then(appointments => {
             for (let i = 0; i < appointments.length; i++) {
                 const newDate = (0, dateUtils_1.convertToLocalTime)(appointments[i].date, 'sv-SE');
                 console_1.default.log(newDate);
-                let appointment = {
+                const appointment = {
                     '_id': appointments[i].id,
                     'userId': appointments[i].userId,
                     'dentistId': appointments[i].dentistId,

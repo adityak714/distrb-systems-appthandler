@@ -7,7 +7,7 @@ exports.UserRepository = void 0;
 const userSchema_1 = __importDefault(require("../Models/userSchema"));
 class UserRepository {
     async getUser(userID) {
-        let filter = { _id: userID };
+        const filter = { _id: userID };
         return await userSchema_1.default.findOne(filter);
     }
 }

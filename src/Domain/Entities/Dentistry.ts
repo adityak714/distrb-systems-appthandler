@@ -10,6 +10,7 @@ export class Dentistry implements IDentistry {
   city: string;
   coordinate: ICoordinate;
   openinghours: IOpeningHours;
+
   constructor(
     id: Number,
     name: string,

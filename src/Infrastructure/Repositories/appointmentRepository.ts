@@ -21,7 +21,7 @@ export class appointmentRepository implements IAppointmentRepository {
   }
   async updateAppointment(newAppointment: IAppointment, newDate: Date ): Promise<string> {
     console.log(newDate)
-    let status: string = ''
+    let status = ''
     const filter = { date: newAppointment.date,dentistId: newAppointment.dentistId}
     const update = {date: newDate}
     await Appointment.updateOne(filter, update).then((appointment) => {
@@ -38,24 +38,23 @@ export class appointmentRepository implements IAppointmentRepository {
     return status
   }
   async deleteAppointment(newDate: Date, newDentistId: Number): Promise<string> {
-    let deletedStatus : string = 'no'
+    let deletedStatus  = 'no'
     const filter = { date: newDate, dentistId: newDentistId }
     await Appointment.findOneAndDelete(filter).then((appointment) => {
       if(appointment !== null) {
         deletedStatus = 'yes'
-        console.log(appointment)
       }
     })
     return deletedStatus
   }
   async getAllAppointments(dentistIdNumber: Number): Promise<any[]> {
-    let allAppointments: any[] = [];
-    var filter = {dentistId: dentistIdNumber};
+    const allAppointments: any[] = [];
+    const filter = {dentistId: dentistIdNumber};
      await Appointment.find(filter).sort({Date: -1}).then(appointments => {
       for(let i= 0; i< appointments.length; i++) {
         const newDate = convertToLocalTime(appointments[i].date, 'sv-SE')
-        console.log(newDate)
-        let appointment = {
+
+        const appointment = {
           '_id': appointments[i].id,
           'userId': appointments[i].userId,
           'dentistId': appointments[i].dentistId,
@@ -69,24 +68,24 @@ export class appointmentRepository implements IAppointmentRepository {
      return allAppointments
     }
     async deleteAllAppointments(dentistIdNumber: Number): Promise<string> {
-      let deletedStatus : string = 'no'
-      var filter = {dentistId: dentistIdNumber};
+      let deletedStatus  = 'no'
+      const filter = {dentistId: dentistIdNumber};
       await Appointment.deleteMany(filter).then(appointments => {
         if(appointments !== null) {
           deletedStatus = 'yes'
         }
-       
+
       })
       return deletedStatus;
     }
     async getAppointmentsByUserId(userID: string): Promise<any[]> {
-      let allAppointments: any[] = [];
-      var filter = {userId: userID};
+      const allAppointments: any[] = [];
+      const filter = {userId: userID};
        await Appointment.find(filter).then(appointments => {
         for(let i= 0; i< appointments.length; i++) {
           const newDate = convertToLocalTime(appointments[i].date, 'sv-SE')
           console.log(newDate)
-          let appointment = {
+          const appointment = {
             '_id': appointments[i].id,
             'userId': appointments[i].userId,
             'dentistId': appointments[i].dentistId,
