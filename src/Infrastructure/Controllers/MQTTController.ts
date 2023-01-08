@@ -19,33 +19,34 @@ export class MQTTController {
                 private deleteAppointmentCommand: deleteAppointmentCommand,
                 private getUserQuery: getUserQuery){}
 
-        /*readonly mqttoptions: IClientOptions = {
+        readonly mqttoptions: IClientOptions = {
             port: 8883,
             host: 'cb9fe4f292fe4099ae5eeb9f230c8346.s2.eu.hivemq.cloud',
             protocol: 'mqtts',
             username: 'T2Project',
             password: 'Mamamia1234.'
         }
-        */
+    
         
 
 
 
-       readonly client = mqtt.connect('mqtt://broker.hivemq.com',{
+       /*readonly client = mqtt.connect('mqtt://broker.hivemq.com',{
             port: 1883,
             username: 'T2Project',
             password: 'Mamamia1234.',
         });
+        */
         
 
 
         options: CircuitBreaker.Options = {
-            timeout: 1000, // If our function takes longer than 3 seconds, trigger a failure
+            timeout: 1000, // If our function takes longer than 1 seconds, trigger a failure
             errorThresholdPercentage: 50,// When 50% of requests fail, trip the circuit
-            resetTimeout: 5000 // After 30 seconds, try again.
+            resetTimeout: 5000 // After 5 seconds, try again.
             };
 
-        //readonly client = mqtt.connect(this.mqttoptions);
+        readonly client = mqtt.connect(this.mqttoptions);
 
         readonly mqtt_options = {qos: 1};
 
@@ -138,8 +139,9 @@ export class MQTTController {
                         const dentistryInfo = JSON.parse(message.toString());
 
                         const appointments = await getAppointmentsBreaker.fire(dentistryInfo.dentistId)
+                       
 
-                        if(!getAppointmentsBreaker.opened) {
+                        if(getAppointmentsBreaker.closed) {
                             this.client.publish(this.getAppointmentsResponse, JSON.stringify(appointments))
                         }
                     }
@@ -212,7 +214,7 @@ export class MQTTController {
 
                             case 'yes':
                                     newAppointment = JSON.parse(this.appointment);
-                                    await createAppointmentBreaker.fire(newAppointment.userId, newAppointment.dentistId, newAppointment.requestId, newAppointment.issuance, newAppointment.date);
+                                    await createAppointmentBreaker.fire(newAppointment.userId, newAppointment.dentistId, newAppointment.requestId, newAppointment.issuance, newAppointment.date)
 
                                     const date = convertToLocalTime(newAppointment.date, 'sv-SE')
                                     savedAppointment = <JSON><unknown> {
