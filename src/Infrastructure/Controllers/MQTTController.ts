@@ -27,17 +27,20 @@ export class MQTTController {
             password: 'Mamamia1234.'
         }
         */
+        
 
 
 
-        readonly client = mqtt.connect('mqtt://broker.hivemq.com',{
+       readonly client = mqtt.connect('mqtt://broker.hivemq.com',{
             port: 1883,
             username: 'T2Project',
             password: 'Mamamia1234.',
         });
+        
+
 
         options: CircuitBreaker.Options = {
-            timeout: 3000, // If our function takes longer than 3 seconds, trigger a failure
+            timeout: 1000, // If our function takes longer than 3 seconds, trigger a failure
             errorThresholdPercentage: 50,// When 50% of requests fail, trip the circuit
             resetTimeout: 5000 // After 30 seconds, try again.
             };
