@@ -17,25 +17,25 @@ class MQTTController {
         this.getAppointmentsCommand = getAppointmentsCommand;
         this.deleteAppointmentCommand = deleteAppointmentCommand;
         this.getUserQuery = getUserQuery;
-        /*readonly mqttoptions: IClientOptions = {
+        this.mqttoptions = {
             port: 8883,
             host: 'cb9fe4f292fe4099ae5eeb9f230c8346.s2.eu.hivemq.cloud',
             protocol: 'mqtts',
             username: 'T2Project',
             password: 'Mamamia1234.'
-        }
-        */
-        this.client = mqtt_1.default.connect('mqtt://broker.hivemq.com', {
-            port: 1883,
-            username: 'T2Project',
-            password: 'Mamamia1234.',
-        });
+        };
+        /*readonly client = mqtt.connect('mqtt://broker.hivemq.com',{
+             port: 1883,
+             username: 'T2Project',
+             password: 'Mamamia1234.',
+         });
+         */
         this.options = {
             timeout: 1000,
             errorThresholdPercentage: 50,
-            resetTimeout: 5000 // After 30 seconds, try again.
+            resetTimeout: 5000 // After 5 seconds, try again.
         };
-        //readonly client = mqtt.connect(this.mqttoptions);
+        this.client = mqtt_1.default.connect(this.mqttoptions);
         this.mqtt_options = { qos: 1 };
         this.availabilityTopic = 'avaiability/#';
         this.appointmentTopic = 'appointment/#';
@@ -104,7 +104,7 @@ class MQTTController {
                         getAppointmentsBreaker.on('fallback', () => console.log('Sorry, out of service right now'));
                         const dentistryInfo = JSON.parse(message.toString());
                         const appointments = await getAppointmentsBreaker.fire(dentistryInfo.dentistId);
-                        if (!getAppointmentsBreaker.opened) {
+                        if (getAppointmentsBreaker.closed) {
                             this.client.publish(this.getAppointmentsResponse, JSON.stringify(appointments));
                         }
                     }
