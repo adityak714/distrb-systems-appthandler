@@ -43,6 +43,7 @@ Our platform brings together the best affordable dental care in your area. With 
 # Conceptual design
 
 This system is a distributed system with a presentation layer that communicates with its subsystems via a broker and a gateway. The Gateway in question is used to act as both a type of validator and a filter for the data in the messages sent. Each subsystems are independent and have no coupling to one another which is the intention for the system to achieve easy scalability through modularization with the subsystem modules.
+Make sure to check our [Documentation](https://git.chalmers.se/courses/dit355/dit356-2022/t-2/t2-project/-/blob/main/README.md)
 
 <br>
 
