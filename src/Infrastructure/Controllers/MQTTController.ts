@@ -1,6 +1,6 @@
 /* eslint-disable no-case-declarations */
 /* eslint-disable prettier/prettier */
-import mqtt from 'mqtt'
+import mqtt, { IClientOptions } from 'mqtt'
 import { createAppointmentCommand } from '../../Application/Commands/createAppointmentCommand';
 import { editAppointmentCommand } from '../../Application/Commands/editAppointmentCommand';
 import { getAppointmentsCommand } from '../../Application/Commands/getAppointmentsCommand';
@@ -19,30 +19,30 @@ export class MQTTController {
                 private deleteAppointmentCommand: deleteAppointmentCommand,
                 private getUserQuery: getUserQuery){}
 
-        readonly mqttoptions: IClientOptions = {
+        /*readonly mqttoptions: IClientOptions = {
             port: 8883,
             host: 'cb9fe4f292fe4099ae5eeb9f230c8346.s2.eu.hivemq.cloud',
             protocol: 'mqtts',
             username: 'T2Project',
             password: 'Mamamia1234.'
         }
+        */
 
 
 
-        /*readonly client = mqtt.connect('mqtt://broker.hivemq.com',{
+        readonly client = mqtt.connect('mqtt://broker.hivemq.com',{
             port: 1883,
             username: 'T2Project',
             password: 'Mamamia1234.',
         });
-        */
 
         options: CircuitBreaker.Options = {
-            timeout: 500, // If our function takes longer than 3 seconds, trigger a failure
+            timeout: 3000, // If our function takes longer than 3 seconds, trigger a failure
             errorThresholdPercentage: 50,// When 50% of requests fail, trip the circuit
             resetTimeout: 5000 // After 30 seconds, try again.
             };
 
-        readonly client = mqtt.connect(this.mqttoptions);
+        //readonly client = mqtt.connect(this.mqttoptions);
 
         readonly mqtt_options = {qos: 1};
 
@@ -167,8 +167,10 @@ export class MQTTController {
                         userAppointmentBreaker.fallback(() => 'Sorry, out of service right now');
                         userAppointmentBreaker.on('fallback', () => console.log('Sorry, out of service right now'))
                         const request = JSON.parse(message.toString());
+
                         const appointments = await userAppointmentBreaker.fire(request.userId)
-                        if(!userAppointmentBreaker.opened) {
+
+                        if(userAppointmentBreaker.closed) {
                             this.client.publish(this.userAppointmentsResponse, JSON.stringify(appointments))
                         }
                     }
@@ -217,12 +219,11 @@ export class MQTTController {
                                     }
                                     console.log(savedAppointment)
 
-                                    await mailBookingConfirmation(this.user!.name, this.user!.email, newAppointment.dentistId, newAppointment.date).catch((err) => {
-                                        console.log(err)
-                                    })
-
-                                    if(!createAppointmentBreaker.opened) {
+                                    if(createAppointmentBreaker.closed) {
                                         this.client.publish(this.appointmentResponse, JSON.stringify(savedAppointment), {qos: 1});
+                                        await mailBookingConfirmation(this.user!.name, this.user!.email, newAppointment.dentistId, newAppointment.date).catch((err) => {
+                                            console.log(err)
+                                        })
                                     }
 
                                     break;
@@ -336,7 +337,7 @@ export class MQTTController {
                         const response = <JSON><unknown> {
                             'response': answer
                         }
-                        if(!deleteAppointmentBreaker.opened) {
+                        if(deleteAppointmentBreaker.closed) {
                             this.client.publish(this.deleteAppointmentResponse, JSON.stringify(response), {qos: 1})
                             await mailBookingDeletion(this.user!.email, newAppointment.dentistId, newAppointment.date, this.user!.name).catch((err) => {
                                 console.log(err)

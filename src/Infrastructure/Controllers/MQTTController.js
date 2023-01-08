@@ -31,7 +31,7 @@ class MQTTController {
         });
         */
         this.options = {
-            timeout: 500,
+            timeout: 3000,
             errorThresholdPercentage: 50,
             resetTimeout: 5000 // After 30 seconds, try again.
         };
@@ -104,7 +104,7 @@ class MQTTController {
                         getAppointmentsBreaker.on('fallback', () => console.log('Sorry, out of service right now'));
                         const dentistryInfo = JSON.parse(message.toString());
                         const appointments = await getAppointmentsBreaker.fire(dentistryInfo.dentistId);
-                        if (getAppointmentsBreaker.closed) {
+                        if (!getAppointmentsBreaker.opened) {
                             this.client.publish(this.getAppointmentsResponse, JSON.stringify(appointments));
                         }
                     }
@@ -129,7 +129,7 @@ class MQTTController {
                         userAppointmentBreaker.on('fallback', () => console.log('Sorry, out of service right now'));
                         const request = JSON.parse(message.toString());
                         const appointments = await userAppointmentBreaker.fire(request.userId);
-                        if (!userAppointmentBreaker.opened) {
+                        if (userAppointmentBreaker.closed) {
                             this.client.publish(this.userAppointmentsResponse, JSON.stringify(appointments));
                         }
                     }
@@ -167,11 +167,11 @@ class MQTTController {
                                     'date': date
                                 };
                                 console.log(savedAppointment);
-                                await (0, emailService_1.mailBookingConfirmation)(this.user.name, this.user.email, newAppointment.dentistId, newAppointment.date).catch((err) => {
-                                    console.log(err);
-                                });
                                 if (createAppointmentBreaker.closed) {
                                     this.client.publish(this.appointmentResponse, JSON.stringify(savedAppointment), { qos: 1 });
+                                    await (0, emailService_1.mailBookingConfirmation)(this.user.name, this.user.email, newAppointment.dentistId, newAppointment.date).catch((err) => {
+                                        console.log(err);
+                                    });
                                 }
                                 break;
                             case 'no':
@@ -280,7 +280,7 @@ class MQTTController {
                         const response = {
                             'response': answer
                         };
-                        if (!deleteAppointmentBreaker.opened) {
+                        if (deleteAppointmentBreaker.closed) {
                             this.client.publish(this.deleteAppointmentResponse, JSON.stringify(response), { qos: 1 });
                             await (0, emailService_1.mailBookingDeletion)(this.user.email, newAppointment.dentistId, newAppointment.date, this.user.name).catch((err) => {
                                 console.log(err);
