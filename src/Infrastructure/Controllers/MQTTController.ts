@@ -19,24 +19,25 @@ export class MQTTController {
                 private deleteAppointmentCommand: deleteAppointmentCommand,
                 private getUserQuery: getUserQuery){}
 
-        readonly mqttoptions: IClientOptions = {
+        /*readonly mqttoptions: IClientOptions = {
             port: 8883,
             host: 'cb9fe4f292fe4099ae5eeb9f230c8346.s2.eu.hivemq.cloud',
             protocol: 'mqtts',
             username: 'T2Project',
             password: 'Mamamia1234.'
         }
+        */
     
         
 
 
 
-       /*readonly client = mqtt.connect('mqtt://broker.hivemq.com',{
+       readonly client = mqtt.connect('mqtt://broker.hivemq.com',{
             port: 1883,
             username: 'T2Project',
             password: 'Mamamia1234.',
         });
-        */
+        
         
 
 
@@ -46,7 +47,7 @@ export class MQTTController {
             resetTimeout: 5000 // After 5 seconds, try again.
             };
 
-        readonly client = mqtt.connect(this.mqttoptions);
+        //readonly client = mqtt.connect(this.mqttoptions);
 
         readonly mqtt_options = {qos: 1};
 
